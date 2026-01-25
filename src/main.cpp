@@ -19,21 +19,22 @@ int main() {
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     auto last_tick = std::chrono::steady_clock::now();
     while (true) {
-        int timeout = hardMode ? 100 : 1000;
-        if (poll(fds, 1, 0) > 0) {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
+        int timeout = (hardMode ? 100 : 1000) - elapsed;
+        if (poll(fds, 1, std::max(0, timeout)) > 0) {
             if (read(STDIN_FILENO, &input, 1) <= 0 || input == 'q') break;
             if (input == 'h') {
                 hardMode = !hardMode;
                 std::cout << (hardMode ? "\n[HARD MODE] Speed x10!\n" : "\n[NORMAL MODE]\n");
             } else score++;
         }
-        auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
-        if (elapsed >= timeout) {
+        now = std::chrono::steady_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
+        if (elapsed >= (hardMode ? 100 : 1000)) {
             score++; last_tick = now;
             std::cout << "Score: " << score << (hardMode ? " [FAST]  " : " [NORMAL]  ") << "\r" << std::flush;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\nFinal Score: " << score << "\nThanks for playing!\n";
