@@ -1,13 +1,10 @@
-name: Rust
+name: Build and Test
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-env:
-  CARGO_TERM_COLOR: always
 
 jobs:
   build:
@@ -17,6 +14,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --verbose
+      run: make
     - name: Run tests
-      run: cargo test --verbose
+      run: |
+        echo "Running tests..."
+        output=$(echo "sccchcccq" | ./game)
+        echo "$output"
+        echo "$output" | grep "Final Score: 6"

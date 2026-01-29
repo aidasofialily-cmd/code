@@ -17,6 +17,9 @@ int main() {
     std::cout << "==========================\n      SPEED CLICKER\n==========================\n"
               << "Controls:\n [h] Toggle Hard Mode (10x Speed!)\n [q] Quit Game\n [Any key] Click!\n\n";
 
+    std::cout << "Press any key to start...\n";
+    read(STDIN_FILENO, &input, 1);
+
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     auto last_tick = std::chrono::steady_clock::now();
     while (true) {
