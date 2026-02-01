@@ -6,3 +6,7 @@
 
 ## 2026-01-09 - Terminal I/O and Blocking
 **Learning:** Standard terminal I/O is line-buffered by default. For real-time games, it's essential to use non-canonical mode (raw mode) to capture keypresses immediately. Also, internal journals should be kept clean if they are to be included in the repo.
+
+## 2026-01-10 - Tactile Feedback in CLI
+**Learning:** For terminal-based interactions, immediate UI updates upon keypress are crucial for "tactile" feel. Decoupling display updates from fixed game ticks and using `poll()` with dynamic timeouts provides a much smoother experience than busy-waiting or fixed sleep intervals.
+**Action:** Always trigger a UI refresh immediately after processing user input in CLI games.
