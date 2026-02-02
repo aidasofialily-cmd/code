@@ -1,9 +1,13 @@
 #include <iostream>
 #include <chrono>
-#include <thread>
 #include <poll.h>
 #include <unistd.h>
 #include <termios.h>
+#include <algorithm>
+
+void updateDisplay(int score, bool hardMode) {
+    std::cout << "\rScore: " << score << (hardMode ? " [HARD MODE]  " : " [NORMAL]     ") << std::flush;
+}
 
 int main() {
     struct termios oldt, newt;
@@ -18,24 +22,30 @@ int main() {
 
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     auto last_tick = std::chrono::steady_clock::now();
+    updateDisplay(score, hardMode);
+
     while (true) {
-        int timeout = hardMode ? 100 : 1000;
-        if (poll(fds, 1, 0) > 0) {
-            if (read(STDIN_FILENO, &input, 1) <= 0 || input == 'q') break;
-            if (input == 'h') {
-                hardMode = !hardMode;
-                std::cout << (hardMode ? "\n[HARD MODE] Speed x10!\n" : "\n[NORMAL MODE]\n");
-            } else score++;
-        }
+        int interval = hardMode ? 100 : 1000;
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
-        if (elapsed >= timeout) {
-            score++; last_tick = now;
-            std::cout << "Score: " << score << (hardMode ? " [FAST]  " : " [NORMAL]  ") << "\r" << std::flush;
+        int remaining = std::max(0, static_cast<int>(interval - elapsed));
+
+        if (poll(fds, 1, remaining) > 0) {
+            if (read(STDIN_FILENO, &input, 1) <= 0 || input == 'q') break;
+            if (input == 'h') hardMode = !hardMode;
+            else score++;
+            updateDisplay(score, hardMode);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+        now = std::chrono::steady_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
+        if (elapsed >= interval) {
+            score++;
+            last_tick = now;
+            updateDisplay(score, hardMode);
+        }
     }
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\nFinal Score: " << score << "\nThanks for playing!\n";
+    std::cout << "\n\nFinal Score: " << score << "\nThanks for playing!\n";
     return 0;
 }
