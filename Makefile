@@ -21,9 +21,13 @@ $(TARGET): $(SRCS)
 run: $(TARGET)
 	./$(TARGET)
 
+# Run tests
+test: $(TARGET)
+	echo "q" | ./$(TARGET) | grep "Final Score"
+
 # Clean up build artifacts
 clean:
 	rm -f $(TARGET)
 
 # Phony targets
-.PHONY: all run clean
+.PHONY: all run clean test
