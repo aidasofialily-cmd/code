@@ -1,0 +1,22 @@
+name: C++ Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build
+      run: make
+
+    - name: Test
+      run: |
+        # Run a simple check to see if the game can start and quit
+        (echo "q"; sleep 1) | ./game | grep "Thanks for playing!"
