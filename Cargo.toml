@@ -1,0 +1,10 @@
+[package]
+name = "code"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Add your dependencies here
+
+[dev-dependencies]
+# Add your dev dependencies here
