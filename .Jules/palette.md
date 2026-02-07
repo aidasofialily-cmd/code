@@ -6,3 +6,11 @@
 
 ## 2026-01-09 - Terminal I/O and Blocking
 **Learning:** Standard terminal I/O is line-buffered by default. For real-time games, it's essential to use non-canonical mode (raw mode) to capture keypresses immediately. Also, internal journals should be kept clean if they are to be included in the repo.
+
+## 2025-02-07 - Tactile Feedback in CLI Games
+**Learning:** Immediate UI updates upon keypress significantly improve the "feel" of a CLI game. Waiting for the next timer tick to refresh the screen creates a disconnect between user action and visual feedback.
+**Action:** Always trigger a UI refresh immediately after processing user input in the game loop.
+
+## 2025-02-07 - CLI Visual Hierarchy with ANSI Colors
+**Learning:** ANSI colors are essential for establishing visual hierarchy in a plain text interface. Bold colors help distinguish between static controls and dynamic game state.
+**Action:** Use a consistent color palette (e.g., Bold Green for primary stats, Bold Yellow for controls) to guide the user's attention.
