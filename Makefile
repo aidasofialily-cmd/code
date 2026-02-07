@@ -25,5 +25,9 @@ run: $(TARGET)
 clean:
 	rm -f $(TARGET)
 
+# Test the game
+test: all
+	(sleep 0.5; echo "q") | ./$(TARGET) | grep "Thanks for playing!"
+
 # Phony targets
-.PHONY: all run clean
+.PHONY: all run clean test
