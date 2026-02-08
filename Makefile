@@ -25,5 +25,11 @@ run: $(TARGET)
 clean:
 	rm -f $(TARGET)
 
+# Run automated tests
+test: $(TARGET)
+	@echo "Running tests..."
+	@echo "q" | ./$(TARGET) | grep -q "Thanks for playing!"
+	@echo "Tests passed!"
+
 # Phony targets
-.PHONY: all run clean
+.PHONY: all run clean test
