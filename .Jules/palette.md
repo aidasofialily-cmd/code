@@ -6,3 +6,7 @@
 
 ## 2026-01-09 - Terminal I/O and Blocking
 **Learning:** Standard terminal I/O is line-buffered by default. For real-time games, it's essential to use non-canonical mode (raw mode) to capture keypresses immediately. Also, internal journals should be kept clean if they are to be included in the repo.
+
+## 2025-05-15 - Scope and Destructive Changes
+**Learning:** Even if files seem redundant or incorrect for the project (like Rust files in a C++ repo), removing them is out-of-scope for a UX-focused agent unless they directly impact the user experience. Destructive changes should be avoided to stay within the micro-UX mission.
+**Action:** Focus strictly on UI/UX improvements and avoid infrastructure or project structure changes.
