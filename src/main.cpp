@@ -6,13 +6,6 @@
 #include <termios.h>
 #include <algorithm>
 
-// ANSI Color Codes
-#define CLR_SCORE  "\033[1;32m"
-#define CLR_HARD   "\033[1;31m"
-#define CLR_NORM   "\033[1;34m"
-#define CLR_CTRL   "\033[1;33m"
-#define CLR_RESET  "\033[0m"
-
 int main() {
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
