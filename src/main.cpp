@@ -6,12 +6,6 @@
 #include <termios.h>
 #include <algorithm>
 
-#define RESET   "\033[0m"
-#define GREEN   "\033[1;32m"
-#define RED     "\033[1;31m"
-#define BLUE    "\033[1;34m"
-#define YELLOW  "\033[1;33m"
-
 int main() {
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
@@ -23,6 +17,9 @@ int main() {
     std::cout << YELLOW << "==========================\n      SPEED CLICKER\n==========================\n" << RESET
               << "Controls:\n " << YELLOW << "[h]" << RESET << " Toggle Hard Mode (10x Speed!)\n "
               << YELLOW << "[q]" << RESET << " Quit Game\n " << YELLOW << "[Any key]" << RESET << " Click!\n\n";
+    std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
+              << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
+              << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n [Any key] Click!\n\n";
 
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     auto last_tick = std::chrono::steady_clock::now();
@@ -52,10 +49,13 @@ int main() {
             std::cout << GREEN << "Score: " << score << RESET
                       << (hardMode ? RED " [FAST]    " : BLUE " [NORMAL]  ") << RESET
                       << "      \r" << std::flush;
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
+                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << "    " << std::flush;
             updateUI = false;
         }
     }
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\nFinal Score: " << score << "\nThanks for playing!\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
     return 0;
 }
