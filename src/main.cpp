@@ -6,6 +6,12 @@
 #include <termios.h>
 #include <algorithm>
 
+#define CLR_SCORE "\033[1;32m"
+#define CLR_HARD  "\033[1;31m"
+#define CLR_NORM  "\033[1;34m"
+#define CLR_CTRL  "\033[1;33m"
+#define CLR_RESET "\033[0m"
+
 int main() {
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
@@ -14,12 +20,17 @@ int main() {
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     int score = 0; bool hardMode = false; char input;
-    std::cout << YELLOW << "==========================\n      SPEED CLICKER\n==========================\n" << RESET
-              << "Controls:\n " << YELLOW << "[h]" << RESET << " Toggle Hard Mode (10x Speed!)\n "
-              << YELLOW << "[q]" << RESET << " Quit Game\n " << YELLOW << "[Any key]" << RESET << " Click!\n\n";
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
-              << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n [Any key] Click!\n\n";
+              << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
+
+    std::cout << CLR_SCORE << "Game starting in..." << CLR_RESET << std::endl;
+    for (int i = 3; i > 0; --i) {
+        std::cout << CLR_CTRL << i << "... " << CLR_RESET << std::flush;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    std::cout << CLR_HARD << "GO!" << CLR_RESET << std::endl << std::endl;
+    tcflush(STDIN_FILENO, TCIFLUSH);
 
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     auto last_tick = std::chrono::steady_clock::now();
@@ -46,9 +57,6 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << GREEN << "Score: " << score << RESET
-                      << (hardMode ? RED " [FAST]    " : BLUE " [NORMAL]  ") << RESET
-                      << "      \r" << std::flush;
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << "    " << std::flush;
