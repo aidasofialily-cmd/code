@@ -1,4 +1,4 @@
-name: Rust
+name: C++ CI
 
 on:
   push:
@@ -6,20 +6,15 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
 
-      permissions:
-  contents: read
+    - name: Build
+      run: make
+
+    - name: Verify
+      run: (echo ' '; sleep 4; echo 'q') | ./game | grep "Thanks for playing!"
