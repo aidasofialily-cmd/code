@@ -25,5 +25,11 @@ run: $(TARGET)
 clean:
 	rm -f $(TARGET)
 
+# Run a simple sanity test
+test: $(TARGET)
+	@echo "Running sanity test..."
+	@(sleep 0.5; echo ' '; sleep 4; echo 'q') | ./$(TARGET) | grep "Thanks for playing!"
+	@echo "Test passed!"
+
 # Phony targets
-.PHONY: all run clean
+.PHONY: all run clean test
