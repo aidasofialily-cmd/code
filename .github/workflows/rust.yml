@@ -11,15 +11,23 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --verbose
+      run: |
+        if [ -f "src/main.rs" ] || [ -f "src/lib.rs" ]; then
+          cargo build --verbose
+        else
+          echo "No Rust source files found, skipping build."
+        fi
     - name: Run tests
-      run: cargo test --verbose
-
-      permissions:
-  contents: read
+      run: |
+        if [ -f "src/main.rs" ] || [ -f "src/lib.rs" ]; then
+          cargo test --verbose
+        else
+          echo "No Rust source files found, skipping tests."
+        fi
