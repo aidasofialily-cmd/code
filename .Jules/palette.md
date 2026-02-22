@@ -14,6 +14,11 @@
 ## 2026-05-22 - Immediate Feedback in CLI Loops
 **Learning:** In terminal-based interactive loops, relying solely on a fixed timer for UI updates creates a laggy "disconnected" feel for the user. Decoupling the input processing from the timer and using an `updateUI` flag to trigger immediate redraws upon input significantly improves the "tactile" feel of the application.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI games or interactive tools, rather than waiting for the next scheduled tick.
+
 ## 2026-02-13 - Tactile Feedback in CLI
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
+
+## 2026-05-23 - User Preparation in Time-Sensitive CLI Games
+**Learning:** Transitioning abruptly from a menu to active, time-sensitive gameplay can be jarring. Providing a "Press any key to start" prompt followed by a clear, animated countdown allows users to physically and mentally prepare, leading to a much more "fair" and pleasant experience.
+**Action:** Implement a start prompt and a 3-2-1 countdown for any time-sensitive terminal games.
