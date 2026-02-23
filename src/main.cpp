@@ -34,11 +34,18 @@ int main() {
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     for (int i = 3; i > 0; --i) {
         std::cout << "\r" << CLR_SCORE << "Starting in " << i << "... " << CLR_RESET << std::flush;
-        if (poll(fds, 1, 1000) > 0) {
-            if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
-                tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-                std::cout << "\nQuit game.\n";
-                return 0;
+        auto start_wait = std::chrono::steady_clock::now();
+        while (true) {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_wait).count();
+            if (elapsed >= 1000) break;
+
+            if (poll(fds, 1, 1000 - elapsed) > 0) {
+                if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+                    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                    std::cout << "\nQuit game.\n";
+                    return 0;
+                }
             }
         }
     }
