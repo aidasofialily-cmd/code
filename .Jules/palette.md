@@ -17,3 +17,7 @@
 ## 2026-02-13 - Tactile Feedback in CLI
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
+
+## 2026-02-23 - Responsive Countdown in CLI
+**Learning:** Using `poll` for countdowns in CLI games allows for immediate interruption (e.g., quitting with 'q') while maintaining the visual timing. This provides a better UX than blocking `sleep_for` as the application remains responsive to user intent even during "waiting" periods.
+**Action:** Implement non-blocking waits using `poll` even for simple UI animations or countdowns to maintain application responsiveness.

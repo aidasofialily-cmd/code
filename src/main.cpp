@@ -6,6 +6,12 @@
 #include <termios.h>
 #include <algorithm>
 
+#define CLR_SCORE "\033[1;32m"
+#define CLR_HARD  "\033[1;31m"
+#define CLR_NORM  "\033[1;34m"
+#define CLR_CTRL  "\033[1;33m"
+#define CLR_RESET "\033[0m"
+
 int main() {
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
@@ -14,14 +20,38 @@ int main() {
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     int score = 0; bool hardMode = false; char input;
-    std::cout << YELLOW << "==========================\n      SPEED CLICKER\n==========================\n" << RESET
-              << "Controls:\n " << YELLOW << "[h]" << RESET << " Toggle Hard Mode (10x Speed!)\n "
-              << YELLOW << "[q]" << RESET << " Quit Game\n " << YELLOW << "[Any key]" << RESET << " Click!\n\n";
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
-              << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n [Any key] Click!\n\n";
+              << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
+
+    std::cout << CLR_CTRL << "Press any key to start..." << CLR_RESET << std::flush;
+    if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        std::cout << "\nQuit game.\n";
+        return 0;
+    }
 
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
+    for (int i = 3; i > 0; --i) {
+        std::cout << "\r" << CLR_SCORE << "Starting in " << i << "... " << CLR_RESET << std::flush;
+        auto start_wait = std::chrono::steady_clock::now();
+        while (true) {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_wait).count();
+            if (elapsed >= 1000) break;
+
+            if (poll(fds, 1, 1000 - elapsed) > 0) {
+                if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+                    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                    std::cout << "\nQuit game.\n";
+                    return 0;
+                }
+            }
+        }
+    }
+    std::cout << "\r" << CLR_SCORE << "GO!             " << CLR_RESET << "\n" << std::flush;
+    tcflush(STDIN_FILENO, TCIFLUSH);
+
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     while (true) {
@@ -46,9 +76,6 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << GREEN << "Score: " << score << RESET
-                      << (hardMode ? RED " [FAST]    " : BLUE " [NORMAL]  ") << RESET
-                      << "      \r" << std::flush;
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << "    " << std::flush;
