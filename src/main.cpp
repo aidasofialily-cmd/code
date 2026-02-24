@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <fstream>
 
 // Color and formatting macros for terminal output
 #define RESET     "\033[0m"
@@ -46,12 +47,40 @@ int main() {
         return 1;
     }
 
-    long long score = 0; bool hardMode = false; char input;
+    long long score = 0;
+    long long highScore = 0;
+    std::ifstream hsFileIn("highscore.txt");
+    if (hsFileIn >> highScore) hsFileIn.close();
+
+    bool hardMode = false; char input;
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
+    // Start Prompt
+    std::cout << CLR_CTRL << "Press any key to start..." << CLR_RESET << std::flush;
+    if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        return 0;
+    }
+
+    // Countdown
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
+    for (int i = 3; i > 0; --i) {
+        std::cout << "\r" << CLR_CTRL << "Starting in " << i << "...   " << CLR_RESET << std::flush;
+        auto start_wait = std::chrono::steady_clock::now();
+        while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count() < 1000) {
+            if (poll(fds, 1, 100) > 0) {
+                if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+                    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                    return 0;
+                }
+            }
+        }
+    }
+    std::cout << "\r" << CLR_CTRL << "GO!            " << CLR_RESET << std::endl;
+    tcflush(STDIN_FILENO, TCIFLUSH);
+
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     while (true) {
@@ -76,15 +105,20 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << GREEN << "Score: " << score << RESET
-                      << (hardMode ? RED " [FAST]    " : BLUE " [NORMAL]  ") << RESET
-                      << "      \r" << std::flush;
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
+            highScore = std::max(highScore, score);
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
+                      << " (High: " << highScore << ") "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << "    " << std::flush;
             updateUI = false;
         }
     }
+
+    // Save high score
+    std::ofstream hsFileOut("highscore.txt");
+    hsFileOut << highScore;
+    hsFileOut.close();
+
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
     return 0;

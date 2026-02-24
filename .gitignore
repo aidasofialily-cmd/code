@@ -40,3 +40,4 @@ game
 
 # debug information files
 *.dwo
+highscore.txt
