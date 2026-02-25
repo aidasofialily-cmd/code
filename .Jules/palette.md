@@ -17,3 +17,9 @@
 ## 2026-02-13 - Tactile Feedback in CLI
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
+
+## 2026-05-23 - Sequential Segmented Reading for Large Files
+
+**Learning:** Sandbox output for both `read_file` and `run_in_bash_session` is truncated at 1000 characters. To reliably inspect large source files (like `src/main.cpp`) and avoid guesswork or hallucinated review feedback, it's critical to read the file in small, sequential segments (e.g., 20 lines at a time) across multiple tool calls to ensure the entire logic is visible in the trace.
+
+**Action:** Always use segmented reading for files exceeding 1000 characters and confirm the entire file content before proposing or implementing changes.
