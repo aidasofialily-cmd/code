@@ -17,3 +17,7 @@
 ## 2026-02-13 - Tactile Feedback in CLI
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
+
+## 2026-02-26 - Fairness in Countdown Transitions
+**Learning:** In time-sensitive CLI games, users often "prime" their fingers during a countdown. If input buffering is not handled, these preparatory presses can lead to an unfair head start or unexpected behavior when the game officially begins. Using `tcflush(STDIN_FILENO, TCIFLUSH)` immediately after the countdown ensures a clean state for the game loop.
+**Action:** Always flush the input buffer after a blocking UI transition (like a countdown) in interactive CLI applications.
