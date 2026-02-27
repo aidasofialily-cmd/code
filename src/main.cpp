@@ -19,14 +19,16 @@
 #define CLR_NORM  "\033[1;32m"
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_RESET "\033[0m"
+#define HIDE_CURSOR "\033[?25l"
+#define SHOW_CURSOR "\033[?25h"
 
 struct termios oldt;
 
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     // Use write() and _exit() because they are async-signal-safe
-    const char* msg = "\033[0m\n\nGame interrupted. Terminal settings restored.\n";
-    write(STDOUT_FILENO, msg, 52);
+    const char* msg = "\033[0m\033[?25h\n\nGame interrupted. Terminal settings restored.\n";
+    write(STDOUT_FILENO, msg, 58);
     _exit(signum);
 }
 
@@ -46,10 +48,22 @@ int main() {
         return 1;
     }
 
+    // Hide cursor for better visual experience
+    std::cout << HIDE_CURSOR << std::flush;
+
     long long score = 0; bool hardMode = false; char input;
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
+
+    // Wait for user input to start the game
+    std::cout << CLR_CTRL << "Press any key to start..." << CLR_RESET << std::flush;
+    read(STDIN_FILENO, &input, 1);
+    if (input == 'q') {
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        std::cout << SHOW_CURSOR << "\n";
+        return 0;
+    }
 
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     auto last_tick = std::chrono::steady_clock::now();
@@ -86,6 +100,6 @@ int main() {
         }
     }
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
+    std::cout << SHOW_CURSOR << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
     return 0;
 }

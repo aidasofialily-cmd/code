@@ -17,3 +17,7 @@
 ## 2026-02-13 - Tactile Feedback in CLI
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
+
+## 2026-02-15 - Cursor Visibility in CLI Games
+**Learning:** A blinking cursor in a TUI (Text User Interface) game is a significant visual distraction that breaks immersion. Furthermore, immediately dumping the user into the game loop without a "Press any key" prompt can be jarring and lead to accidental inputs. Hiding the cursor and adding a start prompt are small changes that drastically improve perceived polish.
+**Action:** Always implement cursor hiding (`\033[?25l`) at the start of CLI interactive sessions and ensure it is restored (`\033[?25h`) on exit (including signal handlers). Always include a blocking wait for user input before starting the main loop.
