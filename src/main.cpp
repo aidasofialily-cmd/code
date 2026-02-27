@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <string>
 #include <poll.h>
 #include <unistd.h>
 #include <termios.h>
@@ -51,6 +52,34 @@ int main() {
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
+    std::cout << CLR_CTRL << "Press any key to start..." << CLR_RESET << std::flush;
+    if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        return 0;
+    }
+
+    // Responsive 3-2-1 Countdown
+    for (int i = 3; i >= 1; --i) {
+        std::cout << "\r" << CLR_CTRL << "Starting in " << i << "...   " << CLR_RESET << std::flush;
+        auto countdown_start = std::chrono::steady_clock::now();
+        while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - countdown_start).count() < 1000) {
+            struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
+            if (poll(fds, 1, 100) > 0) {
+                if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+                    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                    std::cout << "\nQuit during countdown.\n";
+                    return 0;
+                }
+            }
+        }
+    }
+    std::cout << "\r" << CLR_CTRL << "Starting in GO!    " << CLR_RESET << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::cout << "\r" << std::string(30, ' ') << "\r" << std::flush;
+
+    // Clear input buffer for a fair start
+    tcflush(STDIN_FILENO, TCIFLUSH);
+
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
@@ -76,9 +105,6 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << GREEN << "Score: " << score << RESET
-                      << (hardMode ? RED " [FAST]    " : BLUE " [NORMAL]  ") << RESET
-                      << "      \r" << std::flush;
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << "    " << std::flush;
