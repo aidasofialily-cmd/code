@@ -17,3 +17,7 @@
 ## 2026-02-13 - Tactile Feedback in CLI
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
+
+## 2026-10-24 - Pre-start Prompts and Cursor Visibility
+**Learning:** For interactive CLI games, automatically starting the game and timer immediately upon executing the binary creates a jarring user experience, as the user is rarely ready to start playing instantly. Additionally, the presence of a blinking cursor during rapid UI updates is distracting and reduces visual polish. Providing an explicit "Press any key to start" action gives the user control, while hiding the cursor during active gameplay (`\033[?25l`) and restoring it upon exit (`\033[?25h`) makes the terminal feel more like a dedicated application than a raw command-line interface.
+**Action:** Always require an explicit user action to start a CLI interactive loop and always hide the terminal cursor during active rendering (ensuring it is safely restored on normal exit and via signal handlers).
