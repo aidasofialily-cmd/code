@@ -62,11 +62,16 @@ int main() {
 
     for (int i = 3; i > 0; --i) {
         std::cout << "\rStarting in " << i << "... " << std::flush;
-        if (poll(fds, 1, 1000) > 0) {
-            if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
-                tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-                std::cout << "\n";
-                return 0;
+        auto start_wait = std::chrono::steady_clock::now();
+        while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count() < 1000) {
+            int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count();
+            int remaining = std::max(0, 1000 - elapsed);
+            if (poll(fds, 1, std::min(remaining, 100)) > 0) {
+                if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+                    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                    std::cout << "\n";
+                    return 0;
+                }
             }
         }
     }
