@@ -51,7 +51,29 @@ int main() {
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
+    std::cout << "Press any key to start... " << std::flush;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
+    if (poll(fds, 1, -1) > 0) {
+        if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+            tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+            return 0;
+        }
+    }
+
+    for (int i = 3; i > 0; --i) {
+        std::cout << "\rStarting in " << i << "... " << std::flush;
+        if (poll(fds, 1, 1000) > 0) {
+            if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+                tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                std::cout << "\n";
+                return 0;
+            }
+        }
+    }
+    std::cout << "\rGO!             \n" << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    tcflush(STDIN_FILENO, TCIFLUSH);
+
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     while (true) {
@@ -76,12 +98,9 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << GREEN << "Score: " << score << RESET
-                      << (hardMode ? RED " [FAST]    " : BLUE " [NORMAL]  ") << RESET
-                      << "      \r" << std::flush;
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << "    " << std::flush;
+                      << "           " << std::flush;
             updateUI = false;
         }
     }
