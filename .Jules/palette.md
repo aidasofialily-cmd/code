@@ -21,3 +21,7 @@
 ## 2026-05-23 - Ensuring a Fair Start in CLI Games
 **Learning:** Users often spam keys during a game's countdown phase in anticipation. If these inputs are buffered and processed immediately when the game starts, it can lead to an unfair advantage or accidental actions. Using `tcflush(STDIN_FILENO, TCIFLUSH)` after the countdown ensures the game starts with a clean slate.
 **Action:** Always clear the input buffer with `tcflush` after a blocking countdown or transition period in interactive CLI applications to ensure intent-based interaction.
+
+## 2026-05-24 - Live High Score as Gamification UX
+**Learning:** In simple CLI games, providing live high-score tracking (e.g., "Score: 10 | High: 10") that updates the moment a record is broken creates immediate "micro-delight" and encourages continued engagement. Seeing the "High" value match the "Score" in real-time is a powerful psychological reward.
+**Action:** Implement live-updating progress or record indicators in interactive CLI tools to provide immediate positive reinforcement.
