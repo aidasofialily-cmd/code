@@ -21,3 +21,7 @@
 ## 2026-05-23 - Ensuring a Fair Start in CLI Games
 **Learning:** Users often spam keys during a game's countdown phase in anticipation. If these inputs are buffered and processed immediately when the game starts, it can lead to an unfair advantage or accidental actions. Using `tcflush(STDIN_FILENO, TCIFLUSH)` after the countdown ensures the game starts with a clean slate.
 **Action:** Always clear the input buffer with `tcflush` after a blocking countdown or transition period in interactive CLI applications to ensure intent-based interaction.
+
+## 2026-05-24 - Persistence for Engagement in CLI
+**Learning:** For engagement-focused CLI tools like games, persistence of achievements (like high scores) is a key UX driver. It transforms a one-off interaction into a recurring challenge. Displaying a "Personal Best" only when it exists (greater than 0) keeps the UI clean for first-time users while providing immediate recognition for returning ones.
+**Action:** Implement lightweight local persistence (e.g., text files) for user achievements in CLI applications and use conditional rendering to show these achievements only when relevant.
