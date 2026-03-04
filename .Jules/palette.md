@@ -21,3 +21,7 @@
 ## 2026-05-23 - Ensuring a Fair Start in CLI Games
 **Learning:** Users often spam keys during a game's countdown phase in anticipation. If these inputs are buffered and processed immediately when the game starts, it can lead to an unfair advantage or accidental actions. Using `tcflush(STDIN_FILENO, TCIFLUSH)` after the countdown ensures the game starts with a clean slate.
 **Action:** Always clear the input buffer with `tcflush` after a blocking countdown or transition period in interactive CLI applications to ensure intent-based interaction.
+
+## 2026-05-23 - Managing Terminal Cursor Visibility
+**Learning:** In terminal applications where the UI updates frequently (like games or progress bars), the blinking cursor can be highly distracting and messy, detracting from the overall polish.
+**Action:** Always hide the cursor (`\033[?25l`) on game start and ensure it is restored (`\033[?25h`) on exit, including during graceful interruption via signal handlers, to maintain a clean terminal experience.

@@ -25,8 +25,8 @@ struct termios oldt;
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     // Use write() and _exit() because they are async-signal-safe
-    const char* msg = "\033[0m\n\nGame interrupted. Terminal settings restored.\n";
-    write(STDOUT_FILENO, msg, 52);
+    const char msg[] = "\033[0m\033[?25h\n\nGame interrupted. Terminal settings restored.\n";
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
     _exit(signum);
 }
 
@@ -46,6 +46,7 @@ int main() {
         return 1;
     }
 
+    std::cout << "\033[?25l" << std::flush; // Hide cursor
     long long score = 0; bool hardMode = false; char input;
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
@@ -56,6 +57,7 @@ int main() {
     if (poll(fds, 1, -1) > 0) {
         if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
             tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+            std::cout << "\033[?25h" << std::flush; // Restore cursor
             return 0;
         }
     }
@@ -69,7 +71,7 @@ int main() {
             if (poll(fds, 1, std::min(remaining, 100)) > 0) {
                 if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
                     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-                    std::cout << "\n";
+                    std::cout << "\n\033[?25h" << std::flush; // Restore cursor
                     return 0;
                 }
             }
@@ -111,5 +113,6 @@ int main() {
     }
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
+    std::cout << "\033[?25h" << std::flush; // Restore cursor
     return 0;
 }
