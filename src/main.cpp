@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <fstream>
 
 // Color and formatting macros for terminal output
 #define RESET     "\033[0m"
@@ -19,6 +20,8 @@
 #define CLR_NORM  "\033[1;32m"
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_RESET "\033[0m"
+#define HIDE_CURSOR "\033[?25l"
+#define SHOW_CURSOR "\033[?25h"
 
 struct termios oldt;
 
@@ -106,11 +109,20 @@ int main() {
 
         if (updateUI) {
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
+            highScore = std::max(highScore, score);
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
+                      << " (High: " << highScore << ") "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << "           " << std::flush;
             updateUI = false;
         }
     }
+
+    // Save high score
+    std::ofstream hsFileOut("highscore.txt");
+    hsFileOut << highScore;
+    hsFileOut.close();
+
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
     std::cout << "\033[?25h" << std::flush; // Restore cursor
