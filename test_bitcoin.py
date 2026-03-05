@@ -1,9 +1,4 @@
-import sys
-try:
-    import requests
-except ImportError:
-    print("Error: The 'requests' module is not installed. Please install it using 'pip install requests'.")
-    sys.exit(1)
+import requests
 import json
 
 def get_bitcoin_data():
