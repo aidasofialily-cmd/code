@@ -18,10 +18,6 @@
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
 
-## 2026-05-23 - Ensuring a Fair Start in CLI Games
-**Learning:** Users often spam keys during a game's countdown phase in anticipation. If these inputs are buffered and processed immediately when the game starts, it can lead to an unfair advantage or accidental actions. Using `tcflush(STDIN_FILENO, TCIFLUSH)` after the countdown ensures the game starts with a clean slate.
-**Action:** Always clear the input buffer with `tcflush` after a blocking countdown or transition period in interactive CLI applications to ensure intent-based interaction.
-
-## 2026-05-23 - Managing Terminal Cursor Visibility
-**Learning:** In terminal applications where the UI updates frequently (like games or progress bars), the blinking cursor can be highly distracting and messy, detracting from the overall polish.
-**Action:** Always hide the cursor (`\033[?25l`) on game start and ensure it is restored (`\033[?25h`) on exit, including during graceful interruption via signal handlers, to maintain a clean terminal experience.
+## 2026-02-26 - Fairness in Countdown Transitions
+**Learning:** In time-sensitive CLI games, users often "prime" their fingers during a countdown. If input buffering is not handled, these preparatory presses can lead to an unfair head start or unexpected behavior when the game officially begins. Using `tcflush(STDIN_FILENO, TCIFLUSH)` immediately after the countdown ensures a clean state for the game loop.
+**Action:** Always flush the input buffer after a blocking UI transition (like a countdown) in interactive CLI applications.
