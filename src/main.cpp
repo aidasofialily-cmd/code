@@ -1,18 +1,10 @@
 #include <iostream>
-#include <fstream>
 #include <chrono>
 #include <thread>
 #include <poll.h>
 #include <unistd.h>
 #include <termios.h>
 #include <algorithm>
-#include <fstream>
-
-// ANSI Colors for CLI Polish
-#define CLR_SCORE "\033[1;32m" // Bold Green
-#define CLR_HARD  "\033[1;31m" // Bold Red
-#define CLR_NORM  "\033[1;34m" // Bold Blue
-#define CLR_CTRL  "\033[1;33m" // Bold Yellow
 #include <csignal>
 #include <cstdlib>
 #include <fstream>
@@ -28,40 +20,16 @@
 #define CLR_NORM  "\033[1;32m"
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_RESET "\033[0m"
-#define HIDE_CURSOR "\033[?25l"
-#define SHOW_CURSOR "\033[?25h"
 
 struct termios oldt;
 
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     // Use write() and _exit() because they are async-signal-safe
-    const char msg[] = "\033[0m\033[?25h\n\nGame interrupted. Terminal settings restored.\n";
-    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    const char* msg = "\033[0m\n\nGame interrupted. Terminal settings restored.\n";
+    write(STDOUT_FILENO, msg, 52);
     _exit(signum);
 }
-
-long long load_highscore() {
-    long long hs = 0;
-    std::ifstream f("highscore.txt");
-    if (f.is_open()) {
-        f >> hs;
-    }
-    return hs;
-}
-
-void save_highscore(long long hs) {
-    std::ofstream f("highscore.txt");
-    if (f.is_open()) {
-        f << hs;
-    }
-}
-
-#define CLR_SCORE "\033[1;32m"
-#define CLR_HARD  "\033[1;31m"
-#define CLR_NORM  "\033[1;34m"
-#define CLR_CTRL  "\033[1;33m"
-#define CLR_RESET "\033[0m"
 
 int main() {
     struct termios newt;
@@ -79,7 +47,6 @@ int main() {
         return 1;
     }
 
-    std::cout << "\033[?25l" << std::flush; // Hide cursor
     long long score = 0; bool hardMode = false; char input;
     long long highscore = 0;
     {
@@ -115,43 +82,37 @@ int main() {
     }
     std::cout << "\r" << CLR_CTRL << "GO!           " << CLR_RESET << std::endl;
     tcflush(STDIN_FILENO, TCIFLUSH);
-    std::cout << "\r" << CLR_NORM << "GO!             " << CLR_RESET << "\n" << std::flush;
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    tcflush(STDIN_FILENO, TCIFLUSH);
-
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
-
     while (true) {
-        bool update = false;
-        if (poll(fds, 1, 0) > 0) {
-            if (read(STDIN_FILENO, &input, 1) <= 0 || input == 'q') break;
-            if (input == 'h') hardMode = !hardMode; else score++;
-            update = true;
-        }
+        int timeout_ms = hardMode ? 100 : 1000;
         auto now = std::chrono::steady_clock::now();
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count() >= (hardMode ? 100 : 1000)) {
-            score++; last_tick = now; update = true;
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
+        int remaining = std::max(0, static_cast<int>(timeout_ms - elapsed));
+
+        if (poll(fds, 1, remaining) > 0) {
+            if (read(STDIN_FILENO, &input, 1) <= 0 || input == 'q') break;
+            if (input == 'h') hardMode = !hardMode;
+            else score++;
+            updateUI = true;
+        }
+
+        now = std::chrono::steady_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
+        if (elapsed >= timeout_ms) {
+            score++;
+            last_tick = now;
+            updateUI = true;
         }
 
         if (updateUI) {
             std::cout << "\r" << CLR_SCORE << "Score: " << score
                       << " | High: " << std::max(score, highscore) << CLR_RESET << " "
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
-            highScore = std::max(highScore, score);
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
-                      << " (High: " << highScore << ") "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << "           " << std::flush;
+                      << "    " << std::flush;
             updateUI = false;
         }
     }
-
-    // Save high score
-    std::ofstream hsFileOut("highscore.txt");
-    hsFileOut << highScore;
-    hsFileOut.close();
-
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
     if (score > highscore) {
