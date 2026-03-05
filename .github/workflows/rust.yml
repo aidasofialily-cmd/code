@@ -1,5 +1,8 @@
 name: Rust
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ "main" ]
@@ -11,15 +14,11 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    if: hashFiles('**/*.rs') != ''
     steps:
     - uses: actions/checkout@v4
     - name: Build
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-
-      permissions:
-  contents: read
