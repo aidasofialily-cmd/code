@@ -28,7 +28,7 @@ struct termios oldt;
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     // Use write() and _exit() because they are async-signal-safe
-    const char msg[] = "\033[?25h\033[0m\n\nGame interrupted. Terminal settings restored.\n";
+    const char msg[] = "\033[0m\033[?25h\n\nGame interrupted. Terminal settings restored.\n";
     write(STDOUT_FILENO, msg, sizeof(msg) - 1);
     _exit(signum);
 }
@@ -49,38 +49,39 @@ int main() {
         return 1;
     }
 
-    long long score = 0;
-    long long highScore = 0;
-    std::ifstream hsFileIn("highscore.txt");
-    if (hsFileIn >> highScore) hsFileIn.close();
-
-    bool hardMode = false; char input;
+    std::cout << "\033[?25l" << std::flush; // Hide cursor
+    long long score = 0; bool hardMode = false; char input;
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
-    // Start Prompt
-    std::cout << CLR_CTRL << "Press any key to start..." << CLR_RESET << std::flush;
-    if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
-        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-        return 0;
+    std::cout << "Press any key to start... " << std::flush;
+    struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
+    if (poll(fds, 1, -1) > 0) {
+        if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
+            tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+            std::cout << "\033[?25h" << std::flush; // Restore cursor
+            return 0;
+        }
     }
 
-    // Countdown
-    struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     for (int i = 3; i > 0; --i) {
-        std::cout << "\r" << CLR_CTRL << "Starting in " << i << "...   " << CLR_RESET << std::flush;
+        std::cout << "\rStarting in " << i << "... " << std::flush;
         auto start_wait = std::chrono::steady_clock::now();
         while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count() < 1000) {
-            if (poll(fds, 1, 100) > 0) {
+            int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count();
+            int remaining = std::max(0, 1000 - elapsed);
+            if (poll(fds, 1, std::min(remaining, 100)) > 0) {
                 if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
                     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                    std::cout << "\n\033[?25h" << std::flush; // Restore cursor
                     return 0;
                 }
             }
         }
     }
-    std::cout << "\r" << CLR_CTRL << "GO!            " << CLR_RESET << std::endl;
+    std::cout << "\rGO!             \n" << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
     auto last_tick = std::chrono::steady_clock::now();
@@ -107,11 +108,12 @@ int main() {
         }
 
         if (updateUI) {
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
             highScore = std::max(highScore, score);
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
                       << " (High: " << highScore << ") "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << "    " << std::flush;
+                      << "           " << std::flush;
             updateUI = false;
         }
     }
@@ -122,6 +124,7 @@ int main() {
     hsFileOut.close();
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n" << SHOW_CURSOR;
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
+    std::cout << "\033[?25h" << std::flush; // Restore cursor
     return 0;
 }
