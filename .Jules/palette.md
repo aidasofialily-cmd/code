@@ -11,13 +11,6 @@
 ## 2026-01-09 - Terminal I/O and Blocking
 **Learning:** Standard terminal I/O is line-buffered by default. For real-time games, it's essential to use non-canonical mode (raw mode) to capture keypresses immediately. Also, internal journals should be kept clean if they are to be included in the repo.
 
-## 2026-05-22 - Immediate Feedback in CLI Loops
-**Learning:** In terminal-based interactive loops, relying solely on a fixed timer for UI updates creates a laggy "disconnected" feel for the user. Decoupling the input processing from the timer and using an `updateUI` flag to trigger immediate redraws upon input significantly improves the "tactile" feel of the application.
-**Action:** Always trigger a UI refresh immediately after processing user input in CLI games or interactive tools, rather than waiting for the next scheduled tick.
-## 2026-02-13 - Tactile Feedback in CLI
-**Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
-**Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
-
-## 2025-02-14 - Input Buffering during Blocked States
-**Learning:** When a CLI application has a blocking state (like a countdown timer using `sleep`), user inputs are still buffered by the terminal. If these inputs are not cleared before the interactive loop starts, they will be processed immediately, leading to unintended behavior (e.g., "exploiting" the countdown to rack up points).
-**Action:** Use `tcflush(STDIN_FILENO, TCIFLUSH)` to clear the input buffer immediately before entering an interactive loop following a blocking period.
+## 2025-05-15 - Scope and Destructive Changes
+**Learning:** Even if files seem redundant or incorrect for the project (like Rust files in a C++ repo), removing them is out-of-scope for a UX-focused agent unless they directly impact the user experience. Destructive changes should be avoided to stay within the micro-UX mission.
+**Action:** Focus strictly on UI/UX improvements and avoid infrastructure or project structure changes.
