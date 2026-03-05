@@ -47,6 +47,12 @@ void save_highscore(long long hs) {
     }
 }
 
+#define CLR_SCORE "\033[1;32m"
+#define CLR_HARD  "\033[1;31m"
+#define CLR_NORM  "\033[1;34m"
+#define CLR_CTRL  "\033[1;33m"
+#define CLR_RESET "\033[0m"
+
 int main() {
     struct termios newt;
     if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
@@ -69,8 +75,15 @@ int main() {
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "High Score: " << CLR_SCORE << highscore << CLR_RESET << "\n\n"
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
-              << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n"
-              << CLR_CTRL << "Press any key to start..." << CLR_RESET << std::flush;
+              << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
+
+    std::cout << CLR_SCORE << "Game starting in..." << CLR_RESET << std::endl;
+    for (int i = 3; i > 0; --i) {
+        std::cout << CLR_CTRL << i << "... " << CLR_RESET << std::flush;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    std::cout << CLR_HARD << "GO!" << CLR_RESET << std::endl << std::endl;
+    tcflush(STDIN_FILENO, TCIFLUSH);
 
     // Wait for any key to start
     read(STDIN_FILENO, &input, 1);
@@ -167,7 +180,6 @@ int main() {
         }
 
         if (updateUI) {
-            std::string hs_str = " (High: " + std::to_string(std::max(score, highscore)) + ")";
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << CLR_CTRL << hs_str << CLR_RESET << "    " << std::flush;
