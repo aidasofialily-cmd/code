@@ -20,16 +20,14 @@
 #define CLR_NORM  "\033[1;32m"
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_RESET "\033[0m"
-#define HIDE_CURSOR "\033[?25l"
-#define SHOW_CURSOR "\033[?25h"
 
 struct termios oldt;
 
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     // Use write() and _exit() because they are async-signal-safe
-    const char msg[] = "\033[?25h\033[0m\n\nGame interrupted. Terminal settings restored.\n";
-    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    const char* msg = "\033[0m\n\nGame interrupted. Terminal settings restored.\n";
+    write(STDOUT_FILENO, msg, 52);
     _exit(signum);
 }
 
@@ -122,6 +120,6 @@ int main() {
     hsFileOut.close();
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n" << SHOW_CURSOR;
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
     return 0;
 }
