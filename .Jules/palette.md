@@ -18,6 +18,6 @@
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
 
-## 2026-02-28 - Interactive Game Start and Persistence
-**Learning:** For time-sensitive CLI games, an immediate start can be jarring. Adding a "Press any key to start" followed by a countdown improves preparation. Persistence (high scores) significantly increases replay value even in simple tools.
-**Action:** Always include a non-blocking start sequence and local state persistence (like high scores) for interactive CLI games to enhance "delight" and engagement.
+## 2024-05-23 - Cursor Hygiene in TUI
+**Learning:** In terminal applications, the cursor state (visible/hidden) is a key part of the UX. A blinking cursor in a game loop is distracting. Crucially, ensuring the cursor is restored upon ANY exit (normal or signal interrupt) requires modifying signal handlers to emit the show cursor sequence using async-signal-safe functions like `write()`.
+**Action:** Always wrap TUI application execution in a cursor hide/show block and ensure signal handlers explicitly restore the cursor.

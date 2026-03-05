@@ -21,13 +21,16 @@
 #define CLR_NORM  "\033[1;32m"
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_RESET "\033[0m"
+#define HIDE_CURSOR "\033[?25l"
+#define SHOW_CURSOR "\033[?25h"
 
 struct termios oldt;
 
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    const char* msg = "\033[0m\n\nGame interrupted. Terminal settings restored.\n";
-    write(STDOUT_FILENO, msg, 52);
+    // Use write() and _exit() because they are async-signal-safe
+    const char msg[] = "\033[?25h\033[0m\n\nGame interrupted. Terminal settings restored.\n";
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
     _exit(signum);
 }
 
@@ -110,11 +113,10 @@ int main() {
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
-    if (highScore > 0) {
-        std::cout << "Personal Best: " << CLR_SCORE << highScore << CLR_RESET << "\n\n";
-    }
+    std::cout << CLR_CTRL << "Press any key to start..." << CLR_RESET << std::flush;
+    read(STDIN_FILENO, &input, 1);
+    std::cout << HIDE_CURSOR << std::flush;
 
-    std::cout << "Press any key to start... " << std::flush;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     if (poll(fds, 1, -1) > 0) {
         if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
@@ -181,6 +183,7 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n" << SHOW_CURSOR;
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
 
     if (score > highScore) {
