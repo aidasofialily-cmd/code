@@ -14,9 +14,8 @@ env:
 
 jobs:
   build:
-    if: hashFiles('**/*.rs') != ''
     runs-on: ubuntu-latest
-
+    if: hashFiles('**/*.rs') != ''
     steps:
     - uses: actions/checkout@v4
     - name: Build

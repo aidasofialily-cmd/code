@@ -1,10 +1,18 @@
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <thread>
 #include <poll.h>
 #include <unistd.h>
 #include <termios.h>
 #include <algorithm>
+#include <fstream>
+
+// ANSI Colors for CLI Polish
+#define CLR_SCORE "\033[1;32m" // Bold Green
+#define CLR_HARD  "\033[1;31m" // Bold Red
+#define CLR_NORM  "\033[1;34m" // Bold Blue
+#define CLR_CTRL  "\033[1;33m" // Bold Yellow
 #include <csignal>
 #include <cstdlib>
 #include <fstream>
@@ -33,6 +41,28 @@ void restore_terminal(int signum) {
     _exit(signum);
 }
 
+long long load_highscore() {
+    long long hs = 0;
+    std::ifstream f("highscore.txt");
+    if (f.is_open()) {
+        f >> hs;
+    }
+    return hs;
+}
+
+void save_highscore(long long hs) {
+    std::ofstream f("highscore.txt");
+    if (f.is_open()) {
+        f << hs;
+    }
+}
+
+#define CLR_SCORE "\033[1;32m"
+#define CLR_HARD  "\033[1;31m"
+#define CLR_NORM  "\033[1;34m"
+#define CLR_CTRL  "\033[1;33m"
+#define CLR_RESET "\033[0m"
+
 int main() {
     struct termios newt;
     if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
@@ -55,7 +85,7 @@ int main() {
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
-    std::cout << "Press any key to start... " << std::flush;
+    int score = 0; bool hardMode = false; char input;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     if (poll(fds, 1, -1) > 0) {
         if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
@@ -74,37 +104,29 @@ int main() {
             if (poll(fds, 1, std::min(remaining, 100)) > 0) {
                 if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
                     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-                    std::cout << "\n\033[?25h" << std::flush; // Restore cursor
+                    std::cout << "\033[?25h\n" << std::flush;
                     return 0;
                 }
             }
         }
     }
-    std::cout << "\rGO!             \n" << std::flush;
+    std::cout << "\r" << CLR_NORM << "GO!             " << CLR_RESET << "\n" << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
+
     while (true) {
-        int timeout_ms = hardMode ? 100 : 1000;
-        auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
-        int remaining = std::max(0, static_cast<int>(timeout_ms - elapsed));
-
-        if (poll(fds, 1, remaining) > 0) {
+        bool update = false;
+        if (poll(fds, 1, 0) > 0) {
             if (read(STDIN_FILENO, &input, 1) <= 0 || input == 'q') break;
-            if (input == 'h') hardMode = !hardMode;
-            else score++;
-            updateUI = true;
+            if (input == 'h') hardMode = !hardMode; else score++;
+            update = true;
         }
-
-        now = std::chrono::steady_clock::now();
-        elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
-        if (elapsed >= timeout_ms) {
-            score++;
-            last_tick = now;
-            updateUI = true;
+        auto now = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count() >= (hardMode ? 100 : 1000)) {
+            score++; last_tick = now; update = true;
         }
 
         if (updateUI) {
