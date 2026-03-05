@@ -48,16 +48,18 @@ int main() {
     }
 
     long long highScore = 0;
-    std::ifstream hsFile("highscore.txt");
-    if (hsFile.is_open()) {
-        hsFile >> highScore;
-        hsFile.close();
+    std::ifstream hsFileIn("highscore.txt");
+    if (hsFileIn.is_open()) {
+        hsFileIn >> highScore;
+        hsFileIn.close();
     }
 
     long long score = 0; bool hardMode = false; char input;
-    std::cout << "\033[?25l" << std::flush; // Hide cursor
-    std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
-              << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
+    std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
+    if (highScore > 0) {
+        std::cout << CLR_SCORE << "   Personal Best: " << highScore << CLR_RESET << "\n\n";
+    }
+    std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
     if (highScore > 0) {
@@ -117,17 +119,20 @@ int main() {
         }
 
         if (updateUI) {
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
+                      << " | " << CLR_SCORE << "Best: " << std::max(score, highScore) << CLR_RESET << " "
             std::cout << "\r" << CLR_SCORE << "Score: " << score << " | High: " << std::max(score, highScore) << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << "           " << std::flush;
             updateUI = false;
         }
     }
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 
-    bool newRecord = false;
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+
     if (score > highScore) {
-        newRecord = true;
+        std::cout << CLR_NORM << "NEW HIGH SCORE! 🎉" << CLR_RESET << "\n";
         std::ofstream hsFileOut("highscore.txt");
         if (hsFileOut.is_open()) {
             hsFileOut << score;
@@ -135,10 +140,6 @@ int main() {
         }
     }
 
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
-    if (newRecord) {
-        std::cout << CLR_NORM << "NEW PERSONAL BEST!" << CLR_RESET << "\n";
-    }
     std::cout << "Thanks for playing!\n";
     return 0;
 }
