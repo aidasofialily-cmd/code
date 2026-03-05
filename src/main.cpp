@@ -36,8 +36,8 @@ struct termios oldt;
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     // Use write() and _exit() because they are async-signal-safe
-    const char msg[] = "\033[0m\033[?25h\n\nGame interrupted. Terminal settings restored.\n";
-    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    const char* msg = "\033[?25h\033[0m\n\nGame interrupted. Terminal settings restored.\n";
+    write(STDOUT_FILENO, msg, 58);
     _exit(signum);
 }
 
@@ -79,7 +79,9 @@ int main() {
         return 1;
     }
 
-    std::cout << "\033[?25l" << std::flush; // Hide cursor
+    // Hide cursor
+    std::cout << "\033[?25l" << std::flush;
+
     long long score = 0; bool hardMode = false; char input;
     long long highscore = 0;
     {
@@ -108,6 +110,7 @@ int main() {
             if (poll(fds, 1, 100) > 0) {
                 if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
                     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                    std::cout << "\033[?25h\n" << std::flush;
                     return 0;
                 }
             }
@@ -153,15 +156,6 @@ int main() {
     hsFileOut.close();
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
-    if (score > highscore) {
-        std::ofstream hf("highscore.txt");
-        if (hf.is_open()) {
-            hf << score;
-            hf.close();
-            std::cout << GREEN << "New High Score! 🏆" << RESET << "\n";
-        }
-    }
-    std::cout << "Thanks for playing!\n";
+    std::cout << "\033[?25h\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
     return 0;
 }
