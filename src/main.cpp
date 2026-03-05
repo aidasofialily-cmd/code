@@ -6,27 +6,14 @@
 #include <unistd.h>
 #include <termios.h>
 #include <algorithm>
-#include <fstream>
-
-// ANSI Colors for CLI Polish
-#define CLR_SCORE "\033[1;32m" // Bold Green
-#define CLR_HARD  "\033[1;31m" // Bold Red
-#define CLR_NORM  "\033[1;34m" // Bold Blue
-#define CLR_CTRL  "\033[1;33m" // Bold Yellow
 #include <csignal>
 #include <cstdlib>
-#include <fstream>
 
 // Color and formatting macros for terminal output
-#define RESET     "\033[0m"
-#define RED       "\033[31m"
-#define GREEN     "\033[32m"
-#define YELLOW    "\033[33m"
-#define BLUE      "\033[34m"
-#define CLR_SCORE "\033[1;36m"
-#define CLR_HARD  "\033[1;31m"
-#define CLR_NORM  "\033[1;32m"
-#define CLR_CTRL  "\033[1;33m"
+#define CLR_SCORE "\033[1;36m" // Bold Cyan
+#define CLR_HARD  "\033[1;31m" // Bold Red
+#define CLR_NORM  "\033[1;32m" // Bold Green
+#define CLR_CTRL  "\033[1;33m" // Bold Yellow
 #define CLR_RESET "\033[0m"
 #define HIDE_CURSOR "\033[?25l"
 #define SHOW_CURSOR "\033[?25h"
@@ -57,12 +44,6 @@ void save_highscore(long long hs) {
     }
 }
 
-#define CLR_SCORE "\033[1;32m"
-#define CLR_HARD  "\033[1;31m"
-#define CLR_NORM  "\033[1;34m"
-#define CLR_CTRL  "\033[1;33m"
-#define CLR_RESET "\033[0m"
-
 int main() {
     struct termios newt;
     if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
@@ -80,25 +61,24 @@ int main() {
     }
 
     // Hide cursor
-    std::cout << "\033[?25l" << std::flush;
+    std::cout << HIDE_CURSOR << std::flush;
 
     long long score = 0; bool hardMode = false; char input;
-    long long highscore = 0;
-    {
-        std::ifstream hf("highscore.txt");
-        if (hf.is_open()) {
-            hf >> highscore;
-            hf.close();
-        }
-    }
+    long long highscore = load_highscore();
+    long long initialHighscore = highscore;
 
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
+    if (highscore > 0) {
+        std::cout << CLR_SCORE << "Personal Best: " << highscore << CLR_RESET << "\n\n";
+    }
+
     std::cout << CLR_CTRL << "Press any key to start... " << CLR_RESET << std::flush;
     if (read(STDIN_FILENO, &input, 1) <= 0 || input == 'q') {
         tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        std::cout << SHOW_CURSOR << std::endl;
         return 0;
     }
 
@@ -110,14 +90,12 @@ int main() {
             if (poll(fds, 1, 100) > 0) {
                 if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
                     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-                    std::cout << "\033[?25h\n" << std::flush;
+                    std::cout << SHOW_CURSOR << "\n" << std::flush;
                     return 0;
                 }
             }
         }
     }
-    std::cout << "\r" << CLR_CTRL << "GO!           " << CLR_RESET << std::endl;
-    tcflush(STDIN_FILENO, TCIFLUSH);
     std::cout << "\r" << CLR_NORM << "GO!             " << CLR_RESET << "\n" << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
@@ -126,36 +104,38 @@ int main() {
     bool updateUI = true;
 
     while (true) {
-        bool update = false;
         if (poll(fds, 1, 0) > 0) {
             if (read(STDIN_FILENO, &input, 1) <= 0 || input == 'q') break;
             if (input == 'h') hardMode = !hardMode; else score++;
-            update = true;
+            updateUI = true;
         }
         auto now = std::chrono::steady_clock::now();
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count() >= (hardMode ? 100 : 1000)) {
-            score++; last_tick = now; update = true;
+            score++; last_tick = now; updateUI = true;
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score
-                      << " | High: " << std::max(score, highscore) << CLR_RESET << " "
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
-            highScore = std::max(highScore, score);
+            highscore = std::max(highscore, score);
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
-                      << " (High: " << highScore << ") "
-                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << "           " << std::flush;
+                      << " (High: " << highscore << ") "
+                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]");
+
+            if (score > initialHighscore && initialHighscore > 0) {
+                std::cout << CLR_CTRL << " NEW BEST! 🎉" << CLR_RESET;
+            }
+
+            std::cout << "           " << std::flush;
             updateUI = false;
         }
     }
 
-    // Save high score
-    std::ofstream hsFileOut("highscore.txt");
-    hsFileOut << highScore;
-    hsFileOut.close();
+    save_highscore(highscore);
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\033[?25h\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
+    std::cout << SHOW_CURSOR << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    if (score > initialHighscore && initialHighscore > 0) {
+        std::cout << CLR_CTRL << "CONGRATULATIONS! New High Score! 🏆" << CLR_RESET << "\n";
+    }
+    std::cout << "Thanks for playing!\n";
     return 0;
 }
