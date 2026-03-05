@@ -28,13 +28,16 @@
 #define CLR_NORM  "\033[1;32m"
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_RESET "\033[0m"
+#define HIDE_CURSOR "\033[?25l"
+#define SHOW_CURSOR "\033[?25h"
 
 struct termios oldt;
 
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    const char* msg = "\033[0m\n\nGame interrupted. Terminal settings restored.\n";
-    write(STDOUT_FILENO, msg, 52);
+    // Use write() and _exit() because they are async-signal-safe
+    const char msg[] = "\033[0m\033[?25h\n\nGame interrupted. Terminal settings restored.\n";
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
     _exit(signum);
 }
 
@@ -76,16 +79,18 @@ int main() {
         return 1;
     }
 
-    int score = 0; bool hardMode = false; char input;
-    std::cout << "==========================\n\033[1;33m      SPEED CLICKER\033[0m\n==========================\n"
-              << "\033[1;33mControls:\033[0m\n [h] Toggle Hard Mode (10x Speed!)\n [q] Quit Game\n [Any key] Click!\n\n";
+    std::cout << "\033[?25l" << std::flush; // Hide cursor
+    long long score = 0; bool hardMode = false; char input;
+    std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
+              << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
+              << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
     int score = 0; bool hardMode = false; char input;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     if (poll(fds, 1, -1) > 0) {
         if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
             tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-            std::cout << "\033[?25h" << std::flush;
+            std::cout << "\033[?25h" << std::flush; // Restore cursor
             return 0;
         }
     }
@@ -123,19 +128,25 @@ int main() {
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count() >= (hardMode ? 100 : 1000)) {
             score++; last_tick = now; update = true;
         }
-        if (update) {
-            std::cout << "\r\033[1;32mScore: " << score << "\033[0m"
-                      << (hardMode ? "\033[1;31m [FAST]  \033[0m" : "\033[1;34m [NORMAL]  \033[0m") << std::flush;
+
+        if (updateUI) {
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
+            highScore = std::max(highScore, score);
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
+                      << " (High: " << highScore << ") "
+                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << "           " << std::flush;
+            updateUI = false;
         }
     }
 
-    if (score > highScore) {
-        std::ofstream hsFileOut("highscore.txt");
-        hsFileOut << score;
-        hsFileOut.close();
-    }
+    // Save high score
+    std::ofstream hsFileOut("highscore.txt");
+    hsFileOut << highScore;
+    hsFileOut.close();
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\033[1;32m\nFinal Score: " << score << "\033[0m\nThanks for playing!\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
+    std::cout << "\033[?25h" << std::flush; // Restore cursor
     return 0;
 }
