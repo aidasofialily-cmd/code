@@ -26,8 +26,8 @@ struct termios oldt;
 void restore_terminal(int signum) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     // Use write() and _exit() because they are async-signal-safe
-    const char* msg = "\033[0m\n\nGame interrupted. Terminal settings restored.\n";
-    write(STDOUT_FILENO, msg, 52);
+    const char msg[] = "\033[?25h\033[0m\n\nGame interrupted. Terminal settings restored.\n";
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
     _exit(signum);
 }
 
@@ -62,11 +62,16 @@ int main() {
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
+    if (highScore > 0) {
+        std::cout << "Personal Best: " << CLR_SCORE << highScore << CLR_RESET << "\n\n";
+    }
+
     std::cout << "Press any key to start... " << std::flush;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     if (poll(fds, 1, -1) > 0) {
         if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
             tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+            std::cout << "\033[?25h" << std::flush;
             return 0;
         }
     }
@@ -80,13 +85,13 @@ int main() {
             if (poll(fds, 1, std::min(remaining, 100)) > 0) {
                 if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
                     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-                    std::cout << "\n";
+                    std::cout << "\033[?25h\n" << std::flush;
                     return 0;
                 }
             }
         }
     }
-    std::cout << "\rGO!             \n" << std::flush;
+    std::cout << "\r" << CLR_NORM << "GO!             " << CLR_RESET << "\n" << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
@@ -116,6 +121,7 @@ int main() {
         if (updateUI) {
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
                       << " | " << CLR_SCORE << "Best: " << std::max(score, highScore) << CLR_RESET << " "
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << " | High: " << std::max(score, highScore) << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << "           " << std::flush;
             updateUI = false;
