@@ -22,6 +22,6 @@
 **Learning:** Users often spam keys during a game's countdown phase in anticipation. If these inputs are buffered and processed immediately when the game starts, it can lead to an unfair advantage or accidental actions. Using `tcflush(STDIN_FILENO, TCIFLUSH)` after the countdown ensures the game starts with a clean slate.
 **Action:** Always clear the input buffer with `tcflush` after a blocking countdown or transition period in interactive CLI applications to ensure intent-based interaction.
 
-## 2024-05-24 - Cursor Visibility in CLI Applications
-**Learning:** In interactive CLI applications that repeatedly update the terminal line (e.g., games using \r), the terminal cursor can cause distracting flickering as it moves. Hiding the cursor during execution significantly improves visual polish. However, it is critical to ensure the cursor is properly restored (\033[?25h) on all exit paths, including asynchronous signal handlers, to prevent leaving the user's terminal in a broken state.
-**Action:** Hide the cursor (\033[?25l) at the start of interactive CLI loops and ensure it is restored via robust signal handling and exit routines.
+## 2026-05-24 - Persistence as Engagement in CLI
+**Learning:** Adding persistence (like high scores) to ephemeral CLI experiences transforms them from simple utilities into engaging applications. Real-time updates of the high score during gameplay provide immediate, tactile feedback of progress and achievement.
+**Action:** Implement file-based persistence for records and achievements in CLI applications to increase user engagement and provide clear goals.

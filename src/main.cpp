@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <fstream>
 
 // Color and formatting macros for terminal output
 #define RESET     "\033[0m"
@@ -46,11 +47,22 @@ int main() {
         return 1;
     }
 
+    long long highScore = 0;
+    std::ifstream hsFile("highscore.txt");
+    if (hsFile.is_open()) {
+        hsFile >> highScore;
+        hsFile.close();
+    }
+
     long long score = 0; bool hardMode = false; char input;
     std::cout << "\033[?25l" << std::flush; // Hide cursor
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
+
+    if (highScore > 0) {
+        std::cout << "Personal Best: " << CLR_SCORE << highScore << CLR_RESET << "\n\n";
+    }
 
     std::cout << "Press any key to start... " << std::flush;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -77,7 +89,7 @@ int main() {
             }
         }
     }
-    std::cout << "\rGO!             \n" << std::flush;
+    std::cout << "\r" << CLR_NORM << "GO!             " << CLR_RESET << "\n" << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
@@ -105,13 +117,28 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << " | High: " << std::max(score, highScore) << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << "           " << std::flush;
             updateUI = false;
         }
     }
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\033[?25h\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n" << std::flush;
+
+    bool newRecord = false;
+    if (score > highScore) {
+        newRecord = true;
+        std::ofstream hsFileOut("highscore.txt");
+        if (hsFileOut.is_open()) {
+            hsFileOut << score;
+            hsFileOut.close();
+        }
+    }
+
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    if (newRecord) {
+        std::cout << CLR_NORM << "NEW PERSONAL BEST!" << CLR_RESET << "\n";
+    }
+    std::cout << "Thanks for playing!\n";
     return 0;
 }
