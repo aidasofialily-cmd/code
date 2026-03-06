@@ -25,3 +25,7 @@
 ## 2026-05-24 - Live High Score as Gamification UX
 **Learning:** In simple CLI games, providing live high-score tracking (e.g., "Score: 10 | High: 10") that updates the moment a record is broken creates immediate "micro-delight" and encourages continued engagement. Seeing the "High" value match the "Score" in real-time is a powerful psychological reward.
 **Action:** Implement live-updating progress or record indicators in interactive CLI tools to provide immediate positive reinforcement.
+
+## 2026-05-25 - DX as UX: Clean Builds for CI/CD
+**Learning:** In a C++ project, the build process is the foundation of the Developer Experience. A broken build not only prevents local development but also paralyzes automated CI/CD workflows like CodeQL analysis. Resolving redundant logic and compilation errors (like duplicate variable declarations) is essential for maintaining a healthy project and enabling advanced security scanning.
+**Action:** Prioritize clean, warning-free compilation and utilize helper functions to consolidate redundant logic, ensuring both developers and CI tools can interact with the codebase seamlessly.

@@ -60,16 +60,10 @@ int main() {
         return 1;
     }
 
-    long long highscore = 0;
-    std::ifstream hsFile("highscore.txt");
-    if (hsFile.is_open()) {
-        hsFile >> highscore;
-        hsFile.close();
-    }
-
-    long long score = 0; bool hardMode = false; char input;
     long long highscore = load_highscore();
-    long long initialHighscore = highscore;
+    long long score = 0;
+    bool hardMode = false;
+    char input;
 
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
               << CLR_SCORE << "   CURRENT HIGH SCORE: " << highscore << CLR_RESET << "\n\n"
@@ -128,18 +122,12 @@ int main() {
         }
     }
 
-    save_highscore(highscore);
-
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
 
     if (score > highscore) {
         std::cout << CLR_NORM << "NEW HIGH SCORE! " << CLR_RESET << "Previous was " << highscore << "\n";
-        std::ofstream hsFileOut("highscore.txt");
-        if (hsFileOut.is_open()) {
-            hsFileOut << score;
-            hsFileOut.close();
-        }
+        save_highscore(score);
     }
 
     std::cout << "Thanks for playing!\n";
