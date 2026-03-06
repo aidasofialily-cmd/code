@@ -37,6 +37,10 @@
 *.out
 *.app
 game
+highscore.txt
 
 # debug information files
 *.dwo
+
+# Game data
+highscore.txt
