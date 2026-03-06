@@ -60,6 +60,8 @@ int main() {
         return 1;
     }
 
+    std::cout << HIDE_CURSOR << std::flush;
+
     long long highscore = load_highscore();
     long long score = 0;
     bool hardMode = false;
@@ -123,7 +125,7 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    std::cout << SHOW_CURSOR << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
 
     if (score > highscore) {
         std::cout << CLR_NORM << "NEW HIGH SCORE! " << CLR_RESET << "Previous was " << highscore << "\n";
