@@ -60,14 +60,19 @@ int main() {
         return 1;
     }
 
-    // Hide cursor
-    std::cout << HIDE_CURSOR << std::flush;
+    long long highscore = 0;
+    std::ifstream hsFile("highscore.txt");
+    if (hsFile.is_open()) {
+        hsFile >> highscore;
+        hsFile.close();
+    }
 
     long long score = 0; bool hardMode = false; char input;
     long long highscore = load_highscore();
     long long initialHighscore = highscore;
 
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
+              << CLR_SCORE << "   CURRENT HIGH SCORE: " << highscore << CLR_RESET << "\n\n"
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
@@ -115,16 +120,10 @@ int main() {
         }
 
         if (updateUI) {
-            highscore = std::max(highscore, score);
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
-                      << " (High: " << highscore << ") "
-                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]");
-
-            if (score > initialHighscore && initialHighscore > 0) {
-                std::cout << CLR_CTRL << " NEW BEST! 🎉" << CLR_RESET;
-            }
-
-            std::cout << "           " << std::flush;
+                      << " | High: " << (score > highscore ? score : highscore) << " "
+                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << "           " << std::flush;
             updateUI = false;
         }
     }
@@ -132,10 +131,17 @@ int main() {
     save_highscore(highscore);
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << SHOW_CURSOR << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
-    if (score > initialHighscore && initialHighscore > 0) {
-        std::cout << CLR_CTRL << "CONGRATULATIONS! New High Score! 🏆" << CLR_RESET << "\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+
+    if (score > highscore) {
+        std::cout << CLR_NORM << "NEW HIGH SCORE! " << CLR_RESET << "Previous was " << highscore << "\n";
+        std::ofstream hsFileOut("highscore.txt");
+        if (hsFileOut.is_open()) {
+            hsFileOut << score;
+            hsFileOut.close();
+        }
     }
+
     std::cout << "Thanks for playing!\n";
     return 0;
 }
