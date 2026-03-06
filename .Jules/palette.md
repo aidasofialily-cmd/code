@@ -29,3 +29,7 @@
 ## 2026-05-25 - DX as UX: Clean Builds for CI/CD
 **Learning:** In a C++ project, the build process is the foundation of the Developer Experience. A broken build not only prevents local development but also paralyzes automated CI/CD workflows like CodeQL analysis. Resolving redundant logic and compilation errors (like duplicate variable declarations) is essential for maintaining a healthy project and enabling advanced security scanning.
 **Action:** Prioritize clean, warning-free compilation and utilize helper functions to consolidate redundant logic, ensuring both developers and CI tools can interact with the codebase seamlessly.
+
+## 2026-03-06 - Hide Cursor During CLI Gameplay
+**Learning:** Failing to hide the cursor during rapid terminal updates causes distracting blinking and visual clutter, reducing the quality of the CLI interaction.
+**Action:** Always use ANSI escape sequences (like `\033[?25l`) coupled with `std::flush` to hide the cursor during interactive CLI sessions, and ensure it is reliably restored on exit.
