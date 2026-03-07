@@ -91,7 +91,7 @@ int main() {
     }
 
     for (int i = 3; i > 0; --i) {
-        std::cout << "\rStarting in " << i << "... " << std::flush;
+        std::cout << "\r\033[KStarting in " << i << "... " << std::flush;
         auto start_wait = std::chrono::steady_clock::now();
         while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count() < 1000) {
             int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count();
@@ -105,7 +105,7 @@ int main() {
             }
         }
     }
-    std::cout << "\rGO!             \n" << std::flush;
+    std::cout << "\r\033[KGO!\n" << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
@@ -134,10 +134,10 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
+            std::cout << "\r\033[K" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << (score > initialHighscore && initialHighscore > 0 ? " NEW BEST! 🥳" : "")
-                      << "           " << std::flush;
+                      << std::flush;
             updateUI = false;
         }
     }
