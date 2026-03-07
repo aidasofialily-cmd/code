@@ -9,8 +9,6 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
-#include <fstream>
-#include <string>
 
 // Color and formatting macros for terminal output
 #define RESET     "\033[0m"
@@ -53,9 +51,13 @@ void save_highscore(long long score) {
 }
 
 int main() {
+    // Hide cursor at start of game
+    std::cout << "\033[?25l" << std::flush;
+
     struct termios newt;
     if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
         perror("tcgetattr");
+        std::cout << "\033[?25h" << std::flush;
         return 1;
     }
     std::signal(SIGINT, restore_terminal);
@@ -65,6 +67,7 @@ int main() {
     newt.c_lflag &= ~(ICANON | ECHO);
     if (tcsetattr(STDIN_FILENO, TCSANOW, &newt) == -1) {
         perror("tcsetattr");
+        std::cout << "\033[?25h" << std::flush;
         return 1;
     }
 
@@ -74,14 +77,6 @@ int main() {
     bool hardMode = false;
     char input;
 
-    long long highscore = 0;
-    std::ifstream infile("highscore.txt");
-    if (infile.is_open()) {
-        infile >> highscore;
-        infile.close();
-    }
-
-    long long score = 0; bool hardMode = false; char input;
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
     if (highscore > 0) {
@@ -153,12 +148,6 @@ int main() {
         }
     }
 
-    if (score > highscore) {
-        std::ofstream outfile("highscore.txt");
-        if (outfile.is_open()) {
-            outfile << score;
-            outfile.close();
-        }
     if (score > initialHighscore) {
         save_highscore(score);
     }
