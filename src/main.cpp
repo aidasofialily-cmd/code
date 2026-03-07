@@ -60,13 +60,14 @@ int main() {
         return 1;
     }
 
+    std::cout << HIDE_CURSOR;
+
     long long highscore = load_highscore();
     long long score = 0;
     bool hardMode = false;
     char input;
 
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
-              << CLR_SCORE << "   CURRENT HIGH SCORE: " << highscore << CLR_RESET << "\n\n"
               << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
@@ -117,6 +118,7 @@ int main() {
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
                       << " | High: " << (score > highscore ? score : highscore) << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << (score > highscore && highscore > 0 ? " NEW BEST! 🥳" : "")
                       << "           " << std::flush;
             updateUI = false;
         }
@@ -130,6 +132,6 @@ int main() {
         save_highscore(score);
     }
 
-    std::cout << "Thanks for playing!\n";
+    std::cout << "Thanks for playing!" << SHOW_CURSOR << "\n";
     return 0;
 }
