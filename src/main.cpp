@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <chrono>
 #include <thread>
 #include <poll.h>
@@ -32,6 +34,24 @@ void restore_terminal(int signum) {
     _exit(signum);
 }
 
+long long load_highscore() {
+    long long highscore = 0;
+    std::ifstream file("highscore.txt");
+    if (file.is_open()) {
+        file >> highscore;
+        file.close();
+    }
+    return highscore;
+}
+
+void save_highscore(long long score) {
+    std::ofstream file("highscore.txt");
+    if (file.is_open()) {
+        file << score;
+        file.close();
+    }
+}
+
 int main() {
     struct termios newt;
     if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
@@ -48,7 +68,11 @@ int main() {
         return 1;
     }
 
-    std::cout << "\033[?25l" << std::flush;
+    long long highscore = load_highscore();
+    long long initialHighscore = highscore;
+    long long score = 0;
+    bool hardMode = false;
+    char input;
 
     long long highscore = 0;
     std::ifstream infile("highscore.txt");
@@ -123,7 +147,7 @@ int main() {
         if (updateUI) {
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > highscore && highscore > 0 ? " NEW BEST! 🥳" : "")
+                      << (score > initialHighscore && initialHighscore > 0 ? " NEW BEST! 🥳" : "")
                       << "           " << std::flush;
             updateUI = false;
         }
@@ -135,10 +159,16 @@ int main() {
             outfile << score;
             outfile.close();
         }
+    if (score > initialHighscore) {
+        save_highscore(score);
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    if (score > initialHighscore && initialHighscore > 0) {
+        std::cout << "Congratulations! A new personal best!\n";
+    }
+    std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
 }
