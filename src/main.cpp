@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <chrono>
 #include <thread>
 #include <poll.h>
@@ -30,6 +32,24 @@ void restore_terminal(int signum) {
     _exit(signum);
 }
 
+long long load_highscore() {
+    long long highscore = 0;
+    std::ifstream file("highscore.txt");
+    if (file.is_open()) {
+        file >> highscore;
+        file.close();
+    }
+    return highscore;
+}
+
+void save_highscore(long long score) {
+    std::ofstream file("highscore.txt");
+    if (file.is_open()) {
+        file << score;
+        file.close();
+    }
+}
+
 int main() {
     struct termios newt;
     if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
@@ -52,9 +72,12 @@ int main() {
     bool hardMode = false;
     char input;
 
-    long long score = 0; bool hardMode = false; char input;
-    std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
-              << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
+    std::cout << "\033[?25l"; // Hide cursor
+    std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
+    if (highscore > 0) {
+        std::cout << CLR_SCORE << "Personal Best: " << highscore << CLR_RESET << "\n\n";
+    }
+    std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
     std::cout << "Press any key to start... " << std::flush;
@@ -118,8 +141,17 @@ int main() {
             updateUI = false;
         }
     }
+
+    if (score > initialHighscore) {
+        save_highscore(score);
+    }
+
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\nThanks for playing!\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    if (score > initialHighscore && initialHighscore > 0) {
+        std::cout << "Congratulations! A new personal best!\n";
+    }
+    std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
 }
