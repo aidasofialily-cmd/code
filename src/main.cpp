@@ -46,7 +46,11 @@ int main() {
         return 1;
     }
 
-    std::cout << "\033[?25l" << std::flush;
+    long long highscore = load_highscore();
+    long long initialHighscore = highscore;
+    long long score = 0;
+    bool hardMode = false;
+    char input;
 
     long long score = 0; bool hardMode = false; char input;
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET
@@ -109,7 +113,7 @@ int main() {
         if (updateUI) {
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > highscore && highscore > 0 ? " NEW BEST! 🥳" : "")
+                      << (score > initialHighscore && initialHighscore > 0 ? " NEW BEST! 🥳" : "")
                       << "           " << std::flush;
             updateUI = false;
         }
