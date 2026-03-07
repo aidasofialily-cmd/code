@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <fstream>
+#include <string>
 
 // Color and formatting macros for terminal output
 #define RESET     "\033[0m"
@@ -72,11 +74,20 @@ int main() {
     bool hardMode = false;
     char input;
 
-    std::cout << "\033[?25l"; // Hide cursor
-    std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
-    if (highscore > 0) {
-        std::cout << CLR_SCORE << "Personal Best: " << highscore << CLR_RESET << "\n\n";
+    long long highscore = 0;
+    std::ifstream infile("highscore.txt");
+    if (infile.is_open()) {
+        infile >> highscore;
+        infile.close();
     }
+
+    long long score = 0; bool hardMode = false; char input;
+    std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
+
+    if (highscore > 0) {
+        std::cout << " Personal Best: " << CLR_SCORE << highscore << CLR_RESET << "\n\n";
+    }
+
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
@@ -142,6 +153,12 @@ int main() {
         }
     }
 
+    if (score > highscore) {
+        std::ofstream outfile("highscore.txt");
+        if (outfile.is_open()) {
+            outfile << score;
+            outfile.close();
+        }
     if (score > initialHighscore) {
         save_highscore(score);
     }
