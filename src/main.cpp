@@ -61,6 +61,7 @@ int main() {
     }
 
     long long highscore = load_highscore();
+    long long initialHighscore = highscore;
     long long score = 0;
     bool hardMode = false;
     char input;
@@ -117,6 +118,7 @@ int main() {
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
                       << " | High: " << (score > highscore ? score : highscore) << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << (score > initialHighscore && initialHighscore > 0 ? " NEW BEST! 🥳" : "")
                       << "           " << std::flush;
             updateUI = false;
         }
