@@ -40,3 +40,6 @@ game
 
 # debug information files
 *.dwo
+
+# Persistent data
+highscore.txt
