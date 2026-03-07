@@ -109,6 +109,7 @@ int main() {
         if (updateUI) {
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << (score > highscore && highscore > 0 ? " NEW BEST! 🥳" : "")
                       << "           " << std::flush;
             updateUI = false;
         }
