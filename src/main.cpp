@@ -61,6 +61,8 @@ int main() {
     std::signal(SIGINT, restore_terminal);
     std::signal(SIGTERM, restore_terminal);
 
+    std::cout << "\033[?25l" << std::flush;
+
     newt = oldt;
     newt.c_lflag &= ~(ICANON | ECHO);
     if (tcsetattr(STDIN_FILENO, TCSANOW, &newt) == -1) {
@@ -73,15 +75,6 @@ int main() {
     long long score = 0;
     bool hardMode = false;
     char input;
-
-    long long highscore = 0;
-    std::ifstream infile("highscore.txt");
-    if (infile.is_open()) {
-        infile >> highscore;
-        infile.close();
-    }
-
-    long long score = 0; bool hardMode = false; char input;
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
     if (highscore > 0) {
@@ -145,20 +138,14 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
+            std::cout << "\r\033[K" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << (score > initialHighscore && initialHighscore > 0 ? " NEW BEST! 🥳" : "")
-                      << "           " << std::flush;
+                      << std::flush;
             updateUI = false;
         }
     }
 
-    if (score > highscore) {
-        std::ofstream outfile("highscore.txt");
-        if (outfile.is_open()) {
-            outfile << score;
-            outfile.close();
-        }
     if (score > initialHighscore) {
         save_highscore(score);
     }
