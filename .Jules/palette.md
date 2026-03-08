@@ -25,3 +25,6 @@
 ## 2026-03-02 - Hiding the Cursor in CLI Games
 **Learning:** In terminal applications that require rapid visual updates or where user input doesn't involve typing text, an actively blinking cursor can be a visual distraction. Hiding it during interaction (`\033[?25l`) and rigorously ensuring it is restored (`\033[?25h`) on exit—including signal interrupts—significantly improves the aesthetic and focus.
 **Action:** Always hide the cursor for interactive CLI games and explicitly restore it across all exit paths, including async-signal-safe signal handlers.
+## 2024-05-24 - Cursor Visibility in CLI Games
+**Learning:** Terminal cursors blinking over dynamic game output creates visual noise and distraction.
+**Action:** Always use the `\033[?25l` (hide cursor) and `\033[?25h` (show cursor) ANSI escape sequences around interactive terminal applications, ensuring it's properly flushed to the output.
