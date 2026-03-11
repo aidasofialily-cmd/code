@@ -25,3 +25,7 @@
 ## 2026-03-02 - Hiding the Cursor in CLI Games
 **Learning:** In terminal applications that require rapid visual updates or where user input doesn't involve typing text, an actively blinking cursor can be a visual distraction. Hiding it during interaction (`\033[?25l`) and rigorously ensuring it is restored (`\033[?25h`) on exit—including signal interrupts—significantly improves the aesthetic and focus.
 **Action:** Always hide the cursor for interactive CLI games and explicitly restore it across all exit paths, including async-signal-safe signal handlers.
+
+## 2024-06-25 - Preventing Trailing Artifacts in CLI Dynamics
+**Learning:** When creating dynamic, single-line updates in a terminal using ``, old text can trail behind the new text if the new text is shorter. Instead of hardcoding padding spaces—which is error-prone and can cause word-wrap issues on smaller terminals—using the ANSI escape sequence `[K` (Erase in Line) immediately after the carriage return ensures a clean slate for the new frame.
+**Action:** Use `[K` after `` in CLI applications whenever overwriting the current line to guarantee clean dynamic updates without trailing text artifacts.
