@@ -25,3 +25,7 @@
 ## 2026-03-02 - Hiding the Cursor in CLI Games
 **Learning:** In terminal applications that require rapid visual updates or where user input doesn't involve typing text, an actively blinking cursor can be a visual distraction. Hiding it during interaction (`\033[?25l`) and rigorously ensuring it is restored (`\033[?25h`) on exit—including signal interrupts—significantly improves the aesthetic and focus.
 **Action:** Always hide the cursor for interactive CLI games and explicitly restore it across all exit paths, including async-signal-safe signal handlers.
+
+## 2026-06-25 - Real-time Target Feedback in CLI Games
+**Learning:** Providing a real-time "High Score" target during gameplay, rather than just at the end, creates a more engaging and goal-oriented user experience. Furthermore, celebratory indicators like "NEW BEST!" should be inclusive of the very first play session by checking if the current score exceeds the initial high score, even if that initial score was zero.
+**Action:** Always include a real-time record/target indicator in gameplay UIs and ensure celebration logic is inclusive of first-time users.
