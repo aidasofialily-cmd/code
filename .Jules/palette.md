@@ -25,3 +25,11 @@
 ## 2026-03-02 - Hiding the Cursor in CLI Games
 **Learning:** In terminal applications that require rapid visual updates or where user input doesn't involve typing text, an actively blinking cursor can be a visual distraction. Hiding it during interaction (`\033[?25l`) and rigorously ensuring it is restored (`\033[?25h`) on exit—including signal interrupts—significantly improves the aesthetic and focus.
 **Action:** Always hide the cursor for interactive CLI games and explicitly restore it across all exit paths, including async-signal-safe signal handlers.
+
+## 2026-05-24 - Real-time Record Feedback and Robust CLI Updates
+**Learning:** Real-time feedback for high scores (e.g., 'Score: 5 | High: 10') motivates players by providing a persistent target. Additionally, using the ANSI 'Erase in Line' sequence (`\033[K`) is far more robust than manual space padding for handling variable-length terminal updates, as it eliminates visual artifacts when the content shrinks.
+**Action:** Use real-time record comparisons in game UIs and prioritize `\033[K` for all in-place CLI line updates.
+
+## 2026-05-25 - Inclusive Milestone Celebrations
+**Learning:** Suppressing achievement celebrations (like "NEW BEST!") for first-time players creates a clinical and unrewarding initial experience. A player's first session is technically their first personal best and should be celebrated as such to build immediate positive reinforcement.
+**Action:** Ensure achievement logic like `score > highscore` handles the `highscore == 0` case gracefully to celebrate first-time milestones.
