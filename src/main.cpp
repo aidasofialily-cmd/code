@@ -137,10 +137,11 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " "
+            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET
+                      << " | High: " << std::max(score, highscore) << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > initialHighscore && initialHighscore > 0 ? " NEW BEST! 🥳" : "")
-                      << "           " << std::flush;
+                      << (score > initialHighscore ? " NEW BEST! 🥳" : "")
+                      << "\033[K" << std::flush;
             updateUI = false;
         }
     }
@@ -151,7 +152,7 @@ int main() {
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
-    if (score > initialHighscore && initialHighscore > 0) {
+    if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
     std::cout << "Thanks for playing!\n";
