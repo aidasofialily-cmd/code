@@ -25,3 +25,7 @@
 ## 2026-03-02 - Hiding the Cursor in CLI Games
 **Learning:** In terminal applications that require rapid visual updates or where user input doesn't involve typing text, an actively blinking cursor can be a visual distraction. Hiding it during interaction (`\033[?25l`) and rigorously ensuring it is restored (`\033[?25h`) on exit—including signal interrupts—significantly improves the aesthetic and focus.
 **Action:** Always hide the cursor for interactive CLI games and explicitly restore it across all exit paths, including async-signal-safe signal handlers.
+
+## 2026-05-24 - Inclusive Achievement Feedback and Real-time Goal Visibility
+**Learning:** For first-time users, the absence of initial data (like a high score of 0) should not block the feedback loop for achievements. Triggering celebrations like "NEW BEST!" as soon as the first point is scored provides immediate delight. Additionally, displaying the "target" (the current high score) in real-time next to the active score provides a constant sense of progression and challenge.
+**Action:** Always ensure achievement logic handles "zero-state" starts gracefully to include new users, and provide persistent visibility of performance targets in live UIs.
