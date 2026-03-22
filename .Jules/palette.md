@@ -25,3 +25,7 @@
 ## 2026-03-02 - Hiding the Cursor in CLI Games
 **Learning:** In terminal applications that require rapid visual updates or where user input doesn't involve typing text, an actively blinking cursor can be a visual distraction. Hiding it during interaction (`\033[?25l`) and rigorously ensuring it is restored (`\033[?25h`) on exit—including signal interrupts—significantly improves the aesthetic and focus.
 **Action:** Always hide the cursor for interactive CLI games and explicitly restore it across all exit paths, including async-signal-safe signal handlers.
+
+## 2026-03-22 - Inclusive Achievements and Clean Terminal Updates
+**Learning:** Forgetting to celebrate first-time achievements (e.g., using `score > highscore && highscore > 0`) excludes new players from early delight. Also, in-place terminal updates using `\r` can leave "ghost" characters if the new line is shorter than the old one; the ANSI escape sequence `\033[K` (Erase in Line) is essential for a clean UI.
+**Action:** Always make achievement logic inclusive of first-time records and use `\033[K` when performing in-place terminal updates.
