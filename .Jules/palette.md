@@ -25,3 +25,11 @@
 ## 2026-03-02 - Hiding the Cursor in CLI Games
 **Learning:** In terminal applications that require rapid visual updates or where user input doesn't involve typing text, an actively blinking cursor can be a visual distraction. Hiding it during interaction (`\033[?25l`) and rigorously ensuring it is restored (`\033[?25h`) on exit—including signal interrupts—significantly improves the aesthetic and focus.
 **Action:** Always hide the cursor for interactive CLI games and explicitly restore it across all exit paths, including async-signal-safe signal handlers.
+
+## 2024-06-18 - Inclusive Achievement Feedback in CLI
+**Learning:** Checking for `initialHighscore > 0` before showing "NEW BEST!" or congratulations messages excludes first-time players from the positive feedback loop. Inclusive UX should celebrate the first record (e.g., first point scored) just as much as subsequent ones.
+**Action:** Always use `score > initialHighscore` instead of requiring `initialHighscore > 0` to trigger achievement feedback.
+
+## 2024-06-18 - Robust Line Clearing in CLI
+**Learning:** Using trailing spaces to "clear" the remainder of a line in terminal applications is fragile and can lead to visual artifacts if the new string is significantly shorter than the previous one. The ANSI escape sequence `\033[K` (Erase in Line) is the standard and most robust way to ensure a clean UI during in-place updates.
+**Action:** Use `\033[K` when performing carriage-return (`\r`) based UI updates to ensure the line is fully cleared.
