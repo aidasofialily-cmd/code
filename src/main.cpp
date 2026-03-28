@@ -83,7 +83,7 @@ int main() {
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
-    std::cout << "Press any key to start... " << std::flush;
+    std::cout << "Press " << CLR_CTRL << "any key" << CLR_RESET << " to start... " << std::flush;
     struct pollfd start_fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     if (poll(start_fds, 1, -1) > 0) {
         if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
@@ -142,9 +142,14 @@ int main() {
 
         if (updateUI) {
             std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
-                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > initialHighscore ? " NEW BEST! 🥳" : "")
-                      << "           " << std::flush;
+                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]");
+            if (score > initialHighscore) {
+                std::cout << CLR_CTRL " NEW BEST! 🥳" CLR_RESET;
+            } else if (initialHighscore > 0) {
+                if (score == initialHighscore) std::cout << " (Tied!)";
+                else std::cout << " (" << (initialHighscore - score) << " to go!)";
+            }
+            std::cout << "           " << std::flush;
             updateUI = false;
         }
     }
@@ -156,7 +161,15 @@ int main() {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_CTRL << "**************************\n"
+                  << "  NEW PERSONAL BEST! 🏆\n"
+                  << "**************************\n" << CLR_RESET;
+        if (initialHighscore > 0) {
+            std::cout << "You beat your old record of " << CLR_SCORE << initialHighscore << CLR_RESET
+                      << " by " << CLR_NORM << (score - initialHighscore) << CLR_RESET << " points!\n";
+        } else {
+            std::cout << "First record set! Great job!\n";
+        }
     }
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;

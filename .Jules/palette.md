@@ -29,3 +29,7 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2025-05-24 - Motivational Progression in CLI
+**Learning:** In terminal-based games where players compete against a personal record, providing a "remaining points" or "tied" indicator in real-time creates a strong sense of progression and motivates continued effort before the high score is actually surpassed.
+**Action:** Always include proximity-to-goal indicators (e.g., "to go", "Tied!") in the HUD of competitive CLI games to drive engagement and provide tactical context.
