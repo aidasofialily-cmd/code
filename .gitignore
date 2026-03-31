@@ -44,3 +44,6 @@ highscore.txt
 
 # Persistent data
 highscore.txt
+venv/
+
+venv/
