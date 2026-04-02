@@ -32,6 +32,15 @@ void restore_terminal(int signum) {
     _exit(signum);
 }
 
+std::string formatWithCommas(long long value) {
+    std::string res = std::to_string(value);
+    int n = res.length();
+    for (int i = n - 3; i > 0; i -= 3) {
+        res.insert(i, ",");
+    }
+    return res;
+}
+
 long long load_highscore() {
     long long highscore = 0;
     std::ifstream file("highscore.txt");
@@ -77,7 +86,7 @@ int main() {
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
     if (highscore > 0) {
-        std::cout << " Personal Best: " << CLR_SCORE << highscore << CLR_RESET << "\n\n";
+        std::cout << " Personal Best: " << CLR_SCORE << formatWithCommas(highscore) << CLR_RESET << "\n\n";
     }
 
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
@@ -94,7 +103,7 @@ int main() {
     }
 
     for (int i = 3; i > 0; --i) {
-        std::cout << "\rStarting in " << CLR_CTRL << i << CLR_RESET << "... " << std::flush;
+        std::cout << "\rStarting in " << CLR_CTRL << i << CLR_RESET << "... \033[K" << std::flush;
         auto start_wait = std::chrono::steady_clock::now();
         while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count() < 1000) {
             int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count();
@@ -108,7 +117,7 @@ int main() {
             }
         }
     }
-    std::cout << "\r" << CLR_NORM << "GO!             " << CLR_RESET << "\n" << std::flush;
+    std::cout << "\r" << CLR_NORM << "GO!\033[K" << CLR_RESET << "\n" << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
@@ -141,10 +150,10 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
+            std::cout << "\r" << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << (score > initialHighscore ? " NEW BEST! 🥳" : "")
-                      << "           " << std::flush;
+                      << "\033[K" << std::flush;
             updateUI = false;
         }
     }
@@ -154,9 +163,9 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << "Congratulations! A new personal best! (Previous: " << formatWithCommas(initialHighscore) << ")\n";
     }
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
