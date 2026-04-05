@@ -29,3 +29,7 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2025-01-25 - Readability and Polish in CLI Scoreboards
+**Learning:** As numeric values scale in fast-paced CLI games, readability suffers without thousands separators. Adding a simple comma-formatting helper significantly reduces cognitive load. Furthermore, using the ANSI "Erase in Line" sequence (`\033[K`) is superior to hardcoded space-padding for clearing volatile lines, as it adaptively handles varying text lengths and prevents visual artifacts.
+**Action:** Always implement thousands separators for large numeric displays and use `\033[K` for flicker-free, in-place terminal UI updates.
