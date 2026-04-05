@@ -29,3 +29,7 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2026-06-05 - Clean Dynamic Terminal Lines in CLI
+**Learning:** When using carriage returns (`\r`) to create dynamic, single-line updates in a CLI (like a countdown or real-time score), relying on hardcoded padding spaces to overwrite previous, longer strings is brittle and hacky. It can lead to trailing text artifacts if the new text is shorter than expected.
+**Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return `\r` (e.g., `\r\033[K`) to cleanly clear the line before printing the new content, eliminating the need for padding spaces.
