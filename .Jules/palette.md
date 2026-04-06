@@ -29,3 +29,7 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2026-05-24 - Contextual Achievement Feedback
+**Learning:** Providing historical context (like a previous personal best) alongside a new achievement on a game-over screen enhances the user's sense of progress and makes the reward feel more earned. In CLI environments where visual space is limited, this specific detail provides high impact for minimal code change.
+**Action:** Always look for opportunities to provide "Before/After" or "New vs. Old" context when celebrating user milestones or record-breaking events.

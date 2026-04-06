@@ -156,7 +156,7 @@ int main() {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << "Congratulations! A new personal best! (Previous: " << initialHighscore << ")\n";
     }
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
