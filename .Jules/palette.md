@@ -29,3 +29,6 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+## 2026-04-10 - Use ANSI Erase in Line instead of padding spaces
+**Learning:** Relying on hardcoded padding spaces to clear previous terminal output when using carriage returns (``) is brittle and can leave trailing artifacts if the new text is shorter.
+**Action:** Use the ANSI sequence `[K` (Erase in Line) immediately after the carriage return for dynamic terminal lines.
