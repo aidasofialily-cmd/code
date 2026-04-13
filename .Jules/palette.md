@@ -26,6 +26,10 @@
 **Learning:** In terminal applications that require rapid visual updates or where user input doesn't involve typing text, an actively blinking cursor can be a visual distraction. Hiding it during interaction (`\033[?25l`) and rigorously ensuring it is restored (`\033[?25h`) on exit—including signal interrupts—significantly improves the aesthetic and focus.
 **Action:** Always hide the cursor for interactive CLI games and explicitly restore it across all exit paths, including async-signal-safe signal handlers.
 
+## 2026-04-13 - Data Readability in CLI
+**Learning:** In numeric-heavy CLI applications, unformatted large numbers (e.g., 1000000) are difficult to parse at a glance. Implementing a simple thousands-separator formatter significantly reduces cognitive load and improves the professional feel of the tool.
+**Action:** Use thousands-separators for all large numeric displays in CLI tools to ensure rapid readability.
+
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
