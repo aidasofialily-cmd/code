@@ -29,3 +29,11 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2026-06-15 - Readability of Large Numbers in CLI
+**Learning:** In games or tools where numeric values can grow significantly (e.g., > 1,000), raw integers become difficult to parse at a glance. Implementing thousands separators (commas) drastically improves immediate readability and the user's ability to track progress.
+**Action:** Use a formatter like `formatWithCommas` for all large numeric displays in CLI applications.
+
+## 2026-06-15 - Visual Hierarchy in CLI HUDs
+**Learning:** In a terminal HUD, inconsistent coloring between labels and values can create a "noisy" interface. Applying a consistent color (e.g., `CLR_SCORE`) to both the label and the value creates a cleaner, more balanced visual group that is easier for the eye to scan.
+**Action:** Ensure consistent styling for related label-value pairs in CLI status lines to improve visual balance and scanability.

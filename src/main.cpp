@@ -50,6 +50,16 @@ void save_highscore(long long score) {
     }
 }
 
+std::string formatWithCommas(long long value) {
+    std::string s = std::to_string(std::abs(value));
+    int n = s.length();
+    for (int i = n - 3; i > 0; i -= 3) {
+        s.insert(i, ",");
+    }
+    if (value < 0) s.insert(0, "-");
+    return s;
+}
+
 int main() {
     struct termios newt;
     if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
@@ -77,7 +87,7 @@ int main() {
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
     if (highscore > 0) {
-        std::cout << " Personal Best: " << CLR_SCORE << highscore << CLR_RESET << "\n\n";
+        std::cout << " Personal Best: " << CLR_SCORE << formatWithCommas(highscore) << CLR_RESET << "\n\n";
     }
 
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
@@ -141,7 +151,8 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
+            std::cout << "\r" << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | "
+                      << CLR_SCORE << "High: " << formatWithCommas(highscore) << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << (score > initialHighscore ? " NEW BEST! 🥳" : "")
                       << "           " << std::flush;
@@ -154,7 +165,7 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
