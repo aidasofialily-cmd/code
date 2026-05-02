@@ -29,3 +29,7 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2026-05-02 - Thousands Separators for Numeric Readability
+**Learning:** In applications where numeric values (like scores) can grow large, readability suffers without thousands separators. Adding a simple comma-formatting helper improves the user's ability to quickly parse large numbers at a glance.
+**Action:** Use a thousands-separator formatter for all significant numeric displays in CLI and GUI applications to enhance readability as values escalate.
