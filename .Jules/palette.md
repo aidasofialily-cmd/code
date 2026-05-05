@@ -29,3 +29,11 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2024-05-24 - Enhancing CLI Readability and Polish
+**Learning:** In terminal UIs, large numbers are hard to parse at a glance. Implementing a comma-formatter () improves instant readability. Additionally, using `CLR_EOL` (`\033[K`) when updating lines with `\r` is a more robust way to ensure clean UI refreshes than relying on trailing spaces, especially when the new content might be shorter than the old.
+**Action:** Use a thousands-separator helper for all numeric displays in CLI apps and prioritize `CLR_EOL` for flicker-free line updates.
+
+## 2024-05-24 - Enhancing CLI Readability and Polish
+**Learning:** In terminal UIs, large numbers are hard to parse at a glance. Implementing a comma-formatter (`formatWithCommas`) improves instant readability. Additionally, using `CLR_EOL` (`\033[K`) when updating lines with `\r` is a more robust way to ensure clean UI refreshes than relying on trailing spaces, especially when the new content might be shorter than the old.
+**Action:** Use a thousands-separator helper for all numeric displays in CLI apps and prioritize `CLR_EOL` for flicker-free line updates.
