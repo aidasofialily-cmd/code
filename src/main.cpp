@@ -12,6 +12,7 @@
 
 // Color and formatting macros for terminal output
 #define RESET     "\033[0m"
+#define ERASE_LINE "\033[K"
 #define RED       "\033[31m"
 #define GREEN     "\033[32m"
 #define YELLOW    "\033[33m"
@@ -94,7 +95,7 @@ int main() {
     }
 
     for (int i = 3; i > 0; --i) {
-        std::cout << "\rStarting in " << CLR_CTRL << i << CLR_RESET << "... " << std::flush;
+        std::cout << "\r" ERASE_LINE "Starting in " << CLR_CTRL << i << CLR_RESET << "... " << std::flush;
         auto start_wait = std::chrono::steady_clock::now();
         while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count() < 1000) {
             int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_wait).count();
@@ -108,7 +109,7 @@ int main() {
             }
         }
     }
-    std::cout << "\r" << CLR_NORM << "GO!             " << CLR_RESET << "\n" << std::flush;
+    std::cout << "\r" ERASE_LINE << CLR_NORM << "GO!" << CLR_RESET << "\n" << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
@@ -141,10 +142,10 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
+            std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << (score > initialHighscore ? " NEW BEST! 🥳" : "")
-                      << "           " << std::flush;
+                      << std::flush;
             updateUI = false;
         }
     }
