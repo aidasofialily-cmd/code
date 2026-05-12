@@ -14,6 +14,10 @@
 ## 2026-05-22 - Immediate Feedback in CLI Loops
 **Learning:** In terminal-based interactive loops, relying solely on a fixed timer for UI updates creates a laggy "disconnected" feel for the user. Decoupling the input processing from the timer and using an `updateUI` flag to trigger immediate redraws upon input significantly improves the "tactile" feel of the application.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI games or interactive tools, rather than waiting for the next scheduled tick.
+
+## 2025-05-24 - Large Number Readability in CLI
+**Learning:** In clicker or score-based CLI games, numbers can rapidly grow beyond 5-6 digits, making them difficult to read at a glance. Implementing thousands separators (commas) significantly improves the readability and "feel" of progress as values escalate.
+**Action:** Always format large numeric values with thousands separators in terminal UIs to ensure immediate readability.
 ## 2026-02-13 - Tactile Feedback in CLI
 **Learning:** In terminal-based games, users expect immediate visual feedback for their actions. Relying on a periodic "tick" to update the UI creates a laggy feel. Using `poll()` with a dynamic timeout allows the application to remain idle yet wake up instantly to process and render user input.
 **Action:** Always trigger a UI refresh immediately after processing user input in CLI applications, and use efficient waiting mechanisms (like `poll`) that can be interrupted by input.
