@@ -29,3 +29,11 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2024-05-26 - Providing Clear Empty States in CLI
+**Learning:** In terminal applications displaying dynamic data like high scores, hiding the element when empty creates ambiguity. Providing an explicit, encouraging empty state (e.g., "None yet! Start clicking!") clarifies the system state and improves user onboarding compared to showing nothing.
+**Action:** Always provide explicit, encouraging empty states for data or achievements rather than hiding the UI element when empty, to clarify system state and improve user onboarding.
+
+## 2024-05-26 - Preventing Trailing Artifacts with ANSI Erase
+**Learning:** Hardcoding padding spaces to overwrite old dynamic text in a CLI loop is fragile and often leads to trailing artifacts if the new text is shorter. Using the ANSI 'Erase in Line' sequence (`\033[K`) immediately after a carriage return is a robust, clean way to ensure the line is fully cleared before writing new content.
+**Action:** Always use the ANSI `\033[K` escape sequence (e.g., via an `ERASE_LINE` macro) when updating dynamic terminal lines via `\r` instead of hardcoding padding spaces.
