@@ -29,3 +29,6 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+## 2024-05-18 - Explicit Empty States
+**Learning:** Hiding UI elements like "Personal Best" when empty can confuse users about what's available. Explicit empty states improve clarity and encourage user interaction.
+**Action:** Provide explicit, encouraging empty states for data or achievements rather than hiding the UI element when empty.
