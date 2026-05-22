@@ -21,6 +21,18 @@
 #define CLR_NORM  "\033[1;32m"
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_RESET "\033[0m"
+#define CLR_EOL   "\033[K"
+
+std::string formatWithCommas(long long value) {
+    std::string s = std::to_string(std::abs(value));
+    int insertPosition = static_cast<int>(s.length()) - 3;
+    while (insertPosition > 0) {
+        s.insert(insertPosition, ",");
+        insertPosition -= 3;
+    }
+    if (value < 0) s.insert(0, "-");
+    return s;
+}
 
 struct termios oldt;
 
@@ -77,13 +89,13 @@ int main() {
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
     if (highscore > 0) {
-        std::cout << " Personal Best: " << CLR_SCORE << highscore << CLR_RESET << "\n\n";
+        std::cout << " Personal Best: " << CLR_SCORE << formatWithCommas(highscore) << CLR_RESET << "\n\n";
     }
 
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
               << CLR_CTRL << "[q]" << CLR_RESET << " Quit Game\n " << CLR_CTRL << "[Any key]" << CLR_RESET << " Click!\n\n";
 
-    std::cout << "Press any key to start... " << std::flush;
+    std::cout << "Press " << CLR_CTRL << "[Any key]" << CLR_RESET << " to start... " << std::flush;
     struct pollfd start_fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     if (poll(start_fds, 1, -1) > 0) {
         if (read(STDIN_FILENO, &input, 1) > 0 && input == 'q') {
@@ -141,10 +153,11 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
-                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > initialHighscore ? " NEW BEST! 🥳" : "")
-                      << "           " << std::flush;
+            std::cout << "\r" << CLR_SCORE << "Score: " << formatWithCommas(score)
+                      << CLR_RESET << " | " << CLR_SCORE << "High: " << formatWithCommas(highscore) << " "
+                      << CLR_RESET << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << (score > initialHighscore ? CLR_NORM " NEW BEST! 🥳" CLR_RESET : "")
+                      << CLR_EOL << std::flush;
             updateUI = false;
         }
     }
@@ -154,9 +167,10 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_NORM << "Congratulations! A new personal best!" << CLR_RESET
+                  << " (Previous: " << formatWithCommas(initialHighscore) << ")\n";
     }
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
