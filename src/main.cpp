@@ -22,6 +22,17 @@
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_RESET "\033[0m"
 
+std::string formatWithCommas(long long value) {
+    std::string s = std::to_string(value);
+    int insertPosition = static_cast<int>(s.length()) - 3;
+    int limit = (value < 0) ? 1 : 0;
+    while (insertPosition > limit) {
+        s.insert(insertPosition, ",");
+        insertPosition -= 3;
+    }
+    return s;
+}
+
 struct termios oldt;
 
 void restore_terminal(int signum) {
@@ -77,7 +88,7 @@ int main() {
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
     if (highscore > 0) {
-        std::cout << " Personal Best: " << CLR_SCORE << highscore << CLR_RESET << "\n\n";
+        std::cout << " Personal Best: " << CLR_SCORE << formatWithCommas(highscore) << CLR_RESET << "\n\n";
     }
 
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
@@ -141,9 +152,10 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
-                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > initialHighscore ? " NEW BEST! 🥳" : "")
+            std::cout << "\r" << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET
+                      << " | " << CLR_SCORE << "High: " << formatWithCommas(highscore) << CLR_RESET << " "
+                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]") << CLR_RESET
+                      << (score > initialHighscore ? CLR_NORM " NEW BEST! 🥳" CLR_RESET : "")
                       << "           " << std::flush;
             updateUI = false;
         }
@@ -154,9 +166,12 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_NORM << "Congratulations! A new personal best!" << CLR_RESET << "\n";
+        if (initialHighscore > 0) {
+            std::cout << "(Previous Best: " << CLR_SCORE << formatWithCommas(initialHighscore) << CLR_RESET << ")\n";
+        }
     }
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
