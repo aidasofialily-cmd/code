@@ -29,3 +29,7 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2026-05-24 - Robust Line Clearing in Terminal UIs
+**Learning:** Using the ANSI escape sequence `\033[K` (Erase in Line) is superior to space-padding when updating lines with `\r`. It ensures that characters from longer previous lines are completely removed, preventing "ghost" characters and visual artifacts.
+**Action:** Always define and use a `CLR_EOL` macro or equivalent when performing in-place terminal updates to ensure a clean UI transition.
