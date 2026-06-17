@@ -29,3 +29,11 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+
+## 2024-06-17 - Encouraging Empty States in CLI
+**Learning:** In CLI applications, a blank or hidden interface element when data is missing (e.g., hiding the High Score when it's 0) provides no guidance to the user. Explicitly showing an encouraging "Empty State" (e.g., "None yet! Go set one!") is much more welcoming and clarifying for first-time users.
+**Action:** Always provide explicit, encouraging empty states for data or achievements rather than hiding the UI element when empty, to clarify system state and improve user onboarding.
+
+## 2024-06-17 - Erasing Terminal Lines with ANSI
+**Learning:** Hardcoding padding spaces (e.g., `GO!             `) to overwrite previous dynamic terminal lines leads to maintenance issues and visual artifacts if the new string is shorter than expected.
+**Action:** Use the ANSI escape sequence `\033[K` (Erase in Line) immediately after a carriage return `\r` to cleanly clear the line before writing new content, preventing trailing text artifacts.
