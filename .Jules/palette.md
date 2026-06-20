@@ -29,3 +29,6 @@
 ## 2025-01-24 - Real-time Achievement Feedback in CLI
 **Learning:** In terminal-based games, displaying achievement progress (like a live high score) in real-time provides immediate tactile reward and engagement. Furthermore, inclusive UX means ensuring first-time players also receive "New Best" feedback, even when their initial record is zero.
 **Action:** Update session-high-score variables immediately upon record-breaking and display them in the live HUD. Ensure achievement conditions (`score > highscore`) don't exclude the first-time user experience.
+## 2024-06-20 - Empty States & ANSI Line Clearing in CLI
+**Learning:** In CLI games, showing nothing when a value (like highscore) is 0 feels broken. Also, hardcoding trailing spaces to overwrite previous output is brittle and can lead to artifacts.
+**Action:** Added an explicit empty state ("0 (Play to set a record!)") for clarity. Replaced hardcoded padding spaces with the exact ANSI 'Erase in Line' sequence `\033[K` immediately after carriage returns (`\r`) to ensure complete and clean line overwrites.
