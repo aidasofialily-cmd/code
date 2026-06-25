@@ -78,6 +78,8 @@ int main() {
 
     if (highscore > 0) {
         std::cout << " Personal Best: " << CLR_SCORE << highscore << CLR_RESET << "\n\n";
+    } else {
+        std::cout << " Personal Best: " << CLR_NORM << "None yet! Set a record!" << CLR_RESET << "\n\n";
     }
 
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
