@@ -33,6 +33,17 @@ void restore_terminal(int signum) {
     _exit(signum);
 }
 
+std::string formatWithCommas(long long value) {
+    std::string s = std::to_string(value);
+    int insertPosition = static_cast<int>(s.length()) - 3;
+    int limit = (value < 0) ? 1 : 0;
+    while (insertPosition > limit) {
+        s.insert(insertPosition, ",");
+        insertPosition -= 3;
+    }
+    return s;
+}
+
 long long load_highscore() {
     long long highscore = 0;
     std::ifstream file("highscore.txt");
@@ -78,7 +89,7 @@ int main() {
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
     if (highscore > 0) {
-        std::cout << " Personal Best: " << CLR_SCORE << highscore << CLR_RESET << "\n\n";
+        std::cout << " Personal Best: " << CLR_SCORE << formatWithCommas(highscore) << CLR_RESET << "\n\n";
     }
 
     std::cout << "Controls:\n " << CLR_CTRL << "[h]" << CLR_RESET << " Toggle Hard Mode (10x Speed!)\n "
@@ -142,9 +153,9 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
+            std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > initialHighscore ? " NEW BEST! 🥳" : "")
+                      << (score > initialHighscore ? CLR_CTRL " ✨ NEW BEST! 🥳" CLR_RESET : "")
                       << std::flush;
             updateUI = false;
         }
@@ -155,7 +166,7 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << score << CLR_RESET << "\n";
+    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
