@@ -22,6 +22,7 @@
 #define CLR_CTRL  "\033[1;33m"
 #define CLR_EOL   "\033[K"
 #define CLR_RESET "\033[0m"
+#define ERASE_LINE "\033[K"
 
 struct termios oldt;
 
@@ -159,6 +160,10 @@ int main() {
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << (score > initialHighscore ? " NEW BEST! 🥳" : "")
                       << CLR_EOL << std::flush;
+            std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << score << CLR_RESET << " | High: " << highscore << " "
+                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << (score > initialHighscore ? " NEW BEST! 🥳" : "")
+                      << std::flush;
             updateUI = false;
         }
     }
