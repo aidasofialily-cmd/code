@@ -33,3 +33,7 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2026-07-04 - Comma Formatting for CLI Readability
+**Learning:** In clicker-style CLI games, numeric scores can grow rapidly. Comma formatting (e.g., '1,234,567') significantly improves readability and the "feel" of progress compared to raw integers, making large achievements more immediately apparent to the player.
+**Action:** Move shared logic (like number formatters) to a header file to avoid duplication and enable consistent formatting across both main application and test suites.
