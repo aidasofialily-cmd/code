@@ -33,3 +33,11 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2026-07-07 - Contextual Achievement Feedback
+**Learning:** Announcing a "New Best" is more impactful when the player can immediately see the magnitude of their improvement. Providing the previous record in the announcement (e.g., "was 1,000") provides instant context and enhances the sense of progression without requiring the player to remember their past performance.
+**Action:** Always include the previous milestone or record value when celebrating achievements in games or progress-based interfaces.
+
+## 2026-07-07 - Numeric Readability in CLI
+**Learning:** In terminal applications, large raw integers are difficult to parse at a glance, especially during fast-paced interactions. Implementing thousands-separator formatting (e.g., "1,000,000") significantly reduces cognitive load and allows for immediate comprehension of numeric values.
+**Action:** Use a standardized `formatWithCommas` utility for all user-facing numeric displays exceeding three digits in CLI tools.
