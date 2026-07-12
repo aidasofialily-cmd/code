@@ -33,3 +33,7 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2025-01-25 - Contextual Achievement Feedback
+**Learning:** Announcing a "New Best" is more impactful when the user can see exactly how much they improved. Providing the previous record in parentheses (e.g., "was 1,000") gives immediate context to the achievement and enhances the sense of progress.
+**Action:** When displaying record-breaking achievements, include the previous value to provide context for the magnitude of the improvement.
