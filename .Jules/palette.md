@@ -33,3 +33,7 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2024-05-24 - Readable Numerics and Achievement Context
+**Learning:** In clicker-style games where scores can grow rapidly, raw integers become difficult to parse at a glance. Comma formatting (e.g., 1,234,567) significantly improves HUD readability. Additionally, "New Best" notifications are more impactful when they provide context by showing the previous record being surpassed.
+**Action:** Always format large numeric values with thousands separators in terminal HUDs and include the previous high score in achievement celebrations to provide immediate context for the player's progress.
