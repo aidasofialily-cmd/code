@@ -33,3 +33,7 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2025-01-24 - Improving Numeric Readability in CLI
+**Learning:** Large, raw integers in terminal UIs are difficult to parse at a glance. Implementing a thousands-separator formatter (e.g., "1,234,567") significantly improves cognitive ease and readability, especially in high-speed interactive environments.
+**Action:** Always provide formatted numeric output for scores, currencies, or large counts in CLI applications to enhance user clarity.
