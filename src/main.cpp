@@ -144,8 +144,8 @@ int main() {
 
         if (updateUI) {
             std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " "
-                      << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > initialHighscore ? " NEW BEST! 🥳 (was " + formatWithCommas(initialHighscore) + ")" : "")
+                      << (hardMode ? CLR_HARD "[HARD MODE]" CLR_RESET : CLR_NORM "[NORMAL MODE]" CLR_RESET)
+                      << (score > initialHighscore ? std::string(" ") + CLR_CTRL + "NEW BEST! ✨🥳" + CLR_RESET + " (was " + formatWithCommas(initialHighscore) + ")" : "")
                       << std::flush;
             updateUI = false;
         }
@@ -158,7 +158,7 @@ int main() {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_CTRL << "Congratulations! A new personal best! ✨🥳" << CLR_RESET << " (was " << formatWithCommas(initialHighscore) << ")\n";
     }
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
