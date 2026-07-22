@@ -75,6 +75,8 @@ int main() {
     long long score = 0;
     bool hardMode = false;
     char input;
+    long long manual_clicks = 0;
+    std::chrono::steady_clock::time_point game_start_time;
 
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
@@ -114,6 +116,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
+    game_start_time = std::chrono::steady_clock::now();
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manual_clicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -143,7 +147,13 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " "
+            double elapsed_sec = std::chrono::duration_cast<std::chrono::milliseconds>(now - game_start_time).count() / 1000.0;
+            double live_cps = elapsed_sec > 0.0 ? (manual_clicks / elapsed_sec) : 0.0;
+            char cps_buf[32];
+            snprintf(cps_buf, sizeof(cps_buf), "%.1f", live_cps);
+
+            std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " | "
+                      << CLR_CTRL << "CPS: " << cps_buf << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << (score > initialHighscore ? " NEW BEST! 🥳 (was " + formatWithCommas(initialHighscore) + ")" : "")
                       << std::flush;
@@ -160,6 +170,17 @@ int main() {
     if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
+
+    auto game_end_time = std::chrono::steady_clock::now();
+    double total_elapsed_sec = std::chrono::duration_cast<std::chrono::milliseconds>(game_end_time - game_start_time).count() / 1000.0;
+    double avg_cps = total_elapsed_sec > 0.0 ? (manual_clicks / total_elapsed_sec) : 0.0;
+    char stats_buf[128];
+    snprintf(stats_buf, sizeof(stats_buf), " Total Manual Clicks: %s\n Game Duration:       %.1f seconds\n Average Click Speed: %.1f CPS\n",
+             formatWithCommas(manual_clicks).c_str(), total_elapsed_sec, avg_cps);
+
+    std::cout << "\n" << CLR_CTRL << "--- Performance Stats ---" << CLR_RESET << "\n"
+              << stats_buf << "\n";
+
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
