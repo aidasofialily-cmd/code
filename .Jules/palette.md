@@ -33,3 +33,7 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2026-03-02 - Detailed Game Over Summaries in CLI Clickers
+**Learning:** Displaying high-fidelity session summaries (including total manual clicks, exact duration, and average Clicks Per Second) upon game exit significantly enhances user engagement and replayability by providing clear, personalized, and structured performance metrics.
+**Action:** Always compute and display a visually stylized final summary card with performance metrics in clicker or timer-based CLI games to drive player progression and feedback.
