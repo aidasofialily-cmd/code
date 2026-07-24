@@ -114,7 +114,9 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
-    auto last_tick = std::chrono::steady_clock::now();
+    auto game_start_time = std::chrono::steady_clock::now();
+    auto last_tick = game_start_time;
+    long long manual_clicks = 0;
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     while (true) {
@@ -128,6 +130,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manual_clicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -155,11 +158,25 @@ int main() {
         save_highscore(score);
     }
 
+    auto game_end_time = std::chrono::steady_clock::now();
+    double duration_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(game_end_time - game_start_time).count() / 1000.0;
+    double average_cps = duration_seconds > 0.0 ? (manual_clicks / duration_seconds) : 0.0;
+
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_CTRL << "Congratulations! A new personal best! 🥳" << CLR_RESET << "\n";
     }
+
+    // Beautiful and detailed Game Over summary with alignment & colors
+    std::cout << "\n" << CLR_CTRL << "=================================\n"
+              << "          GAME SUMMARY\n"
+              << "=================================\n" << CLR_RESET
+              << " Session Duration: " << GREEN << (duration_seconds < 0.1 ? 0.0 : duration_seconds) << "s" << CLR_RESET << "\n"
+              << " Total Manual Clicks: " << GREEN << formatWithCommas(manual_clicks) << CLR_RESET << "\n"
+              << " Average CPS: " << GREEN << (duration_seconds > 0.0 ? average_cps : 0.0) << " clicks/s" << CLR_RESET << "\n"
+              << CLR_CTRL << "=================================\n\n" << CLR_RESET;
+
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
