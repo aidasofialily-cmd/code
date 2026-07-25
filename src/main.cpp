@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <cstdio>
 #include "utils.hpp"
 
 // Color and formatting macros for terminal output
@@ -114,6 +115,9 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
+    auto game_start_time = std::chrono::steady_clock::now();
+    long long manualClicks = 0;
+
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -128,6 +132,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manualClicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -156,10 +161,22 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+    auto game_end_time = std::chrono::steady_clock::now();
+    double duration_sec = std::chrono::duration_cast<std::chrono::milliseconds>(game_end_time - game_start_time).count() / 1000.0;
+    double cps = (duration_sec > 0.0) ? (manualClicks / duration_sec) : 0.0;
+
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_CTRL << "Congratulations! A new personal best! 🏆✨" << CLR_RESET << "\n";
     }
+
+    std::cout << "\n" << CLR_CTRL << "=== GAME OVER SUMMARY ===" << CLR_RESET << "\n";
+    std::printf(" Session Duration : %s%.2f%s seconds\n", CLR_SCORE, duration_sec, CLR_RESET);
+    std::printf(" Manual Clicks    : %s%s%s\n", CLR_SCORE, formatWithCommas(manualClicks).c_str(), CLR_RESET);
+    std::printf(" Average CPS      : %s%.2f%s clicks/sec\n", CLR_SCORE, cps, CLR_RESET);
+    std::cout << CLR_CTRL << "=========================" << CLR_RESET << "\n\n";
+
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
