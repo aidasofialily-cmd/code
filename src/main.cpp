@@ -73,6 +73,7 @@ int main() {
     long long highscore = load_highscore();
     long long initialHighscore = highscore;
     long long score = 0;
+    long long manual_clicks = 0;
     bool hardMode = false;
     char input;
 
@@ -114,6 +115,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
+    auto game_start_time = std::chrono::steady_clock::now();
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -128,6 +130,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manual_clicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -151,12 +154,29 @@ int main() {
         }
     }
 
+    auto game_end_time = std::chrono::steady_clock::now();
+
     if (score > initialHighscore) {
         save_highscore(score);
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
+
+    auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(game_end_time - game_start_time).count();
+    double seconds = duration_ms / 1000.0;
+    double cps = seconds > 0.0 ? (static_cast<double>(manual_clicks) / seconds) : 0.0;
+    long long duration_dec = (duration_ms / 100) % 10;
+    long long duration_sec = duration_ms / 1000;
+    long long cps_int = static_cast<long long>(cps);
+    long long cps_dec = static_cast<long long>(cps * 10) % 10;
+
+    std::cout << "\n\n" << CLR_CTRL << "==========================\n      SESSION SUMMARY\n==========================\n" << CLR_RESET;
+    std::cout << " Play Time:     " << CLR_SCORE << duration_sec << "." << duration_dec << "s" << CLR_RESET << "\n";
+    std::cout << " Manual Clicks: " << CLR_SCORE << formatWithCommas(manual_clicks) << CLR_RESET << "\n";
+    std::cout << " Avg CPS:       " << CLR_SCORE << cps_int << "." << cps_dec << " clicks/s" << CLR_RESET << "\n";
+    std::cout << CLR_CTRL << "==========================\n" << CLR_RESET << "\n";
+
+    std::cout << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
