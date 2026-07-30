@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <chrono>
@@ -115,6 +116,8 @@ int main() {
     tcflush(STDIN_FILENO, TCIFLUSH);
 
     auto last_tick = std::chrono::steady_clock::now();
+    auto game_start = last_tick;
+    long long manual_clicks = 0;
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     while (true) {
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manual_clicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -143,8 +147,11 @@ int main() {
         }
 
         if (updateUI) {
+            double duration = std::chrono::duration<double>(now - game_start).count();
+            double cps = duration > 0.0 ? manual_clicks / duration : 0.0;
             std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
+                      << " | CPS: " << std::fixed << std::setprecision(1) << cps << CLR_RESET
                       << (score > initialHighscore ? " NEW BEST! 🥳 (was " + formatWithCommas(initialHighscore) + ")" : "")
                       << std::flush;
             updateUI = false;
@@ -156,9 +163,19 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
+    auto game_end = std::chrono::steady_clock::now();
+    double total_duration = std::chrono::duration<double>(game_end - game_start).count();
+    double avg_cps = total_duration > 0.0 ? manual_clicks / total_duration : 0.0;
+
+    std::cout << "\n\n" << CLR_CTRL << "=================================\n         SESSION SUMMARY\n=================================\n" << CLR_RESET;
+    std::cout << " Total Manual Clicks : " << CLR_SCORE << formatWithCommas(manual_clicks) << CLR_RESET << "\n";
+    std::cout << " Session Duration    : " << CLR_SCORE << std::fixed << std::setprecision(1) << total_duration << "s" << CLR_RESET << "\n";
+    std::cout << " Average Click Speed : " << CLR_SCORE << std::fixed << std::setprecision(1) << avg_cps << " CPS" << CLR_RESET << "\n";
+    std::cout << CLR_CTRL << "=================================\n" << CLR_RESET << "\n";
+
+    std::cout << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_CTRL << "Congratulations! A new personal best! ✨🥳\n" << CLR_RESET;
     }
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
