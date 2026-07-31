@@ -33,3 +33,7 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2026-10-24 - Tactical Feedback with Sliding-Window CPS and Game Over Summaries
+**Learning:** In terminal-based clicker or incremental games, adding live, high-frequency feedback metrics like a sliding-window Clicks Per Second (CPS) tracking system increases game feel and tactile satisfaction immensely. Coupling this with a beautifully formatted game over statistics summary (highlighting clicks, session duration, and average CPS) adds professional finish and closure.
+**Action:** Implement sliding-window circular queues or vectors for key event timestamps to report live rates in CLI status bars, and render a clear summary dashboard upon exit.
