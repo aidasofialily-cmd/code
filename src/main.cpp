@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <iomanip>
 #include "utils.hpp"
 
 // Color and formatting macros for terminal output
@@ -114,6 +115,8 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
+    auto session_start = std::chrono::steady_clock::now();
+    long long manualClicks = 0;
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manualClicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -151,6 +155,10 @@ int main() {
         }
     }
 
+    auto session_end = std::chrono::steady_clock::now();
+    double duration_sec = std::chrono::duration_cast<std::chrono::milliseconds>(session_end - session_start).count() / 1000.0;
+    double cps = duration_sec > 0 ? manualClicks / duration_sec : 0.0;
+
     if (score > initialHighscore) {
         save_highscore(score);
     }
@@ -160,6 +168,11 @@ int main() {
     if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
+    std::cout << "\n--- Session Stats ---\n"
+              << " Total Manual Clicks: " << formatWithCommas(manualClicks) << "\n"
+              << " Game Session Duration: " << std::fixed << std::setprecision(2) << duration_sec << " seconds\n"
+              << " Average CPS: " << std::fixed << std::setprecision(2) << cps << " clicks/sec\n"
+              << "---------------------\n\n";
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
