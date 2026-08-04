@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <iomanip>
 #include "utils.hpp"
 
 // Color and formatting macros for terminal output
@@ -114,7 +115,9 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
-    auto last_tick = std::chrono::steady_clock::now();
+    auto game_start = std::chrono::steady_clock::now();
+    auto last_tick = game_start;
+    long long manualClicks = 0;
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     while (true) {
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manualClicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -155,11 +159,20 @@ int main() {
         save_highscore(score);
     }
 
+    auto game_end = std::chrono::steady_clock::now();
+    double duration = std::chrono::duration_cast<std::chrono::milliseconds>(game_end - game_start).count() / 1000.0;
+    double cps = (duration > 0) ? (static_cast<double>(manualClicks) / duration) : 0.0;
+
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
+    std::cout << "\n" << CLR_CTRL << "--- Session Summary ---" << CLR_RESET << "\n"
+              << " Total Manual Clicks: " << CLR_SCORE << formatWithCommas(manualClicks) << CLR_RESET << "\n"
+              << " Session Duration:    " << CLR_SCORE << std::fixed << std::setprecision(2) << duration << " seconds" << CLR_RESET << "\n"
+              << " Average CPS:         " << CLR_SCORE << std::fixed << std::setprecision(2) << cps << " clicks/sec" << CLR_RESET << "\n\n";
+
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
