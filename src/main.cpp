@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <iomanip>
 #include "utils.hpp"
 
 // Color and formatting macros for terminal output
@@ -114,6 +115,8 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
+    auto game_start = std::chrono::steady_clock::now();
+    long long manual_clicks = 0;
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manual_clicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -155,11 +159,22 @@ int main() {
         save_highscore(score);
     }
 
+    auto game_end = std::chrono::steady_clock::now();
+    double duration_seconds = std::chrono::duration<double>(game_end - game_start).count();
+    double cps = (duration_seconds > 0.0) ? (static_cast<double>(manual_clicks) / duration_seconds) : 0.0;
+
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
+    std::cout << "\n--------------------------\n"
+              << "       GAME SUMMARY       \n"
+              << "--------------------------\n"
+              << " Time Played:   " << std::fixed << std::setprecision(2) << duration_seconds << "s\n"
+              << " Manual Clicks: " << formatWithCommas(manual_clicks) << "\n"
+              << " Average CPS:   " << std::fixed << std::setprecision(2) << cps << "\n"
+              << "--------------------------\n\n";
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
