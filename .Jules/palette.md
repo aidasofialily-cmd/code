@@ -33,3 +33,7 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2026-05-24 - Post-Game Summary and Replayability
+**Learning:** Providing an end-of-game performance breakdown (e.g., duration, raw active inputs, average rate/CPS) satisfies the user's desire for analysis and comparison. Celebrating milestones with Bold Yellow visual styling and displaying previous high score context reinforces emotional gratification and enhances the replay loop.
+**Action:** Always capture session statistics and display a structured summary when the session concludes, utilizing prominent highlights for achievements with clear contextual reference to previous performance.
