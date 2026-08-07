@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <iomanip>
 #include "utils.hpp"
 
 // Color and formatting macros for terminal output
@@ -75,6 +76,7 @@ int main() {
     long long score = 0;
     bool hardMode = false;
     char input;
+    int manual_clicks = 0;
 
     std::cout << CLR_CTRL << "==========================\n      SPEED CLICKER\n==========================\n" << CLR_RESET;
 
@@ -114,6 +116,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
+    auto game_start = std::chrono::steady_clock::now();
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manual_clicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -155,10 +159,22 @@ int main() {
         save_highscore(score);
     }
 
+    auto game_end = std::chrono::steady_clock::now();
+    double duration_sec = std::chrono::duration_cast<std::chrono::milliseconds>(game_end - game_start).count() / 1000.0;
+    double cps = (duration_sec > 0.0) ? (manual_clicks / duration_sec) : 0.0;
+
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
+    std::cout << "\n\n" << CLR_SCORE << "=================================\n"
+              << "            GAME OVER\n"
+              << "=================================\n" << CLR_RESET;
+    std::cout << " Final Score:     " << CLR_SCORE << formatWithCommas(score) << CLR_RESET << "\n"
+              << " Play Duration:   " << std::fixed << std::setprecision(1) << duration_sec << " seconds\n"
+              << " Manual Clicks:   " << formatWithCommas(manual_clicks) << "\n"
+              << " Average Speed:   " << std::fixed << std::setprecision(2) << cps << " clicks/sec\n\n";
+
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_CTRL << " Congratulations! A new personal best! ✨🥳\n"
+                  << " (Previous Best: " << formatWithCommas(initialHighscore) << ")\n\n" << CLR_RESET;
     }
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
