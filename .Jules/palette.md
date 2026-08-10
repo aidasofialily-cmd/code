@@ -1,3 +1,9 @@
+## 2026-05-24 - Dynamic Tactical Feedback in CLI Gaming
+
+**Learning:** In fast-paced CLI clicker games, real-time feedback (such as displaying real-time Clicks Per Second / CPS metrics) directly reinforces the user's micro-interactions. Presenting a comprehensive and well-aligned Game Over statistics card with clear typography and color accents makes the gameplay loop far more satisfying and encourages user engagement.
+
+**Action:** Incorporate dynamic performance metrics in the active loop and a beautifully formatted session summary card upon termination in terminal gaming applications.
+
 ## 2024-05-22 - DX as UX in a CLI Environment
 
 **Learning:** In a developer-facing project with no graphical user interface (GUI), the Developer Experience (DX) *is* the User Experience (UX). A clean, well-documented, and easy-to-use build process is the equivalent of an intuitive UI for a developer. First impressions matter, and a project that's hard to get running creates a poor initial experience.
