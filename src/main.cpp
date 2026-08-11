@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <iomanip>
 #include "utils.hpp"
 
 // Color and formatting macros for terminal output
@@ -73,6 +74,7 @@ int main() {
     long long highscore = load_highscore();
     long long initialHighscore = highscore;
     long long score = 0;
+    long long manualClicks = 0;
     bool hardMode = false;
     char input;
 
@@ -114,7 +116,8 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
-    auto last_tick = std::chrono::steady_clock::now();
+    auto gameplay_start = std::chrono::steady_clock::now();
+    auto last_tick = gameplay_start;
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
     while (true) {
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manualClicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -145,11 +149,15 @@ int main() {
         if (updateUI) {
             std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > initialHighscore ? " NEW BEST! 🥳 (was " + formatWithCommas(initialHighscore) + ")" : "")
+                      << (score > initialHighscore ? std::string(" ") + CLR_CTRL + "NEW BEST! ✨🥳 (was " + formatWithCommas(initialHighscore) + ")" + CLR_RESET : CLR_RESET)
                       << std::flush;
             updateUI = false;
         }
     }
+
+    auto gameplay_end = std::chrono::steady_clock::now();
+    double duration = std::chrono::duration_cast<std::chrono::milliseconds>(gameplay_end - gameplay_start).count() / 1000.0;
+    double cps = (duration > 0.0) ? (static_cast<double>(manualClicks) / duration) : 0.0;
 
     if (score > initialHighscore) {
         save_highscore(score);
@@ -158,8 +166,13 @@ int main() {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << CLR_CTRL << "Congratulations! A new personal best!" << CLR_RESET << "\n";
     }
+    std::cout << "\n" << CLR_CTRL << "=== PERFORMANCE SUMMARY ===" << CLR_RESET << "\n"
+              << " Total Manual Clicks: " << CLR_SCORE << formatWithCommas(manualClicks) << CLR_RESET << "\n"
+              << " Game Session Duration: " << CLR_SCORE << std::fixed << std::setprecision(2) << duration << CLR_RESET << " seconds\n"
+              << " Average CPS (Clicks/sec): " << CLR_SCORE << std::fixed << std::setprecision(2) << cps << CLR_RESET << "\n"
+              << CLR_CTRL << "===========================" << CLR_RESET << "\n\n";
     std::cout << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
