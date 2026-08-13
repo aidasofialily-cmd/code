@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <iomanip>
 #include "utils.hpp"
 
 // Color and formatting macros for terminal output
@@ -114,6 +115,8 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
+    long long manual_clicks = 0;
+    auto game_start = std::chrono::steady_clock::now();
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manual_clicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -155,12 +159,26 @@ int main() {
         save_highscore(score);
     }
 
+    auto game_end = std::chrono::steady_clock::now();
+    double duration = std::chrono::duration_cast<std::chrono::milliseconds>(game_end - game_start).count() / 1000.0;
+    if (duration <= 0.0) {
+        duration = 0.001; // Avoid division by zero
+    }
+    double cps = manual_clicks / duration;
+
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
     if (score > initialHighscore) {
         std::cout << "Congratulations! A new personal best!\n";
     }
-    std::cout << "Thanks for playing!\n";
+    std::cout << "--------------------------\n"
+              << "     PERFORMANCE STATS    \n"
+              << "--------------------------\n"
+              << " Manual Clicks : " << CLR_CTRL << formatWithCommas(manual_clicks) << CLR_RESET << "\n"
+              << " Time Played   : " << CLR_CTRL << std::fixed << std::setprecision(2) << duration << "s" << CLR_RESET << "\n"
+              << " Average CPS   : " << CLR_CTRL << std::fixed << std::setprecision(2) << cps << " clicks/sec" << CLR_RESET << "\n"
+              << "--------------------------\n\n"
+              << "Thanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
 }
