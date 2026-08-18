@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdlib>
+#include <iomanip>
 #include "utils.hpp"
 
 // Color and formatting macros for terminal output
@@ -114,6 +115,8 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     tcflush(STDIN_FILENO, TCIFLUSH);
 
+    auto game_start_time = std::chrono::steady_clock::now();
+    long long manual_clicks = 0;
     auto last_tick = std::chrono::steady_clock::now();
     bool updateUI = true;
     struct pollfd fds[1] = {{STDIN_FILENO, POLLIN, 0}};
@@ -128,6 +131,7 @@ int main() {
             if (input == 'h') hardMode = !hardMode;
             else {
                 score++;
+                manual_clicks++;
                 if (score > highscore) highscore = score;
             }
             updateUI = true;
@@ -143,7 +147,10 @@ int main() {
         }
 
         if (updateUI) {
-            std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " "
+            double duration_sec = std::chrono::duration_cast<std::chrono::duration<double>>(now - game_start_time).count();
+            double cps = (duration_sec > 0.0) ? (manual_clicks / duration_sec) : 0.0;
+            std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " | "
+                      << CLR_CTRL << "CPS: " << std::fixed << std::setprecision(1) << cps << CLR_RESET << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
                       << (score > initialHighscore ? " NEW BEST! 🥳 (was " + formatWithCommas(initialHighscore) + ")" : "")
                       << std::flush;
@@ -156,11 +163,21 @@ int main() {
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    std::cout << "\n\n" << CLR_SCORE << "Final Score: " << formatWithCommas(score) << CLR_RESET << "\n";
+
+    auto game_end_time = std::chrono::steady_clock::now();
+    double total_sec = std::chrono::duration_cast<std::chrono::duration<double>>(game_end_time - game_start_time).count();
+    double avg_cps = (total_sec > 0.0) ? (manual_clicks / total_sec) : 0.0;
+
+    std::cout << "\n\n" << CLR_CTRL << "==========================\n      GAME OVER SUMMARY\n==========================\n" << CLR_RESET;
+    std::cout << " Final Score:    " << CLR_SCORE << formatWithCommas(score) << CLR_RESET << "\n";
+    std::cout << " Manual Clicks:  " << CLR_SCORE << formatWithCommas(manual_clicks) << CLR_RESET << "\n";
+    std::cout << " Session Time:   " << CLR_SCORE << std::fixed << std::setprecision(1) << total_sec << "s" << CLR_RESET << "\n";
+    std::cout << " Avg Speed:      " << CLR_SCORE << std::fixed << std::setprecision(1) << avg_cps << " CPS" << CLR_RESET << "\n";
+
     if (score > initialHighscore) {
-        std::cout << "Congratulations! A new personal best!\n";
+        std::cout << "\n" << CLR_CTRL << "✨ Congratulations! A new personal best! ✨" << CLR_RESET << "\n";
     }
-    std::cout << "Thanks for playing!\n";
+    std::cout << "\nThanks for playing!\n";
     std::cout << "\033[?25h" << std::flush;
     return 0;
 }
