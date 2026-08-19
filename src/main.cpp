@@ -52,6 +52,18 @@ void save_highscore(long long score) {
     }
 }
 
+std::string formatWithCommas(long long value) {
+    std::string s = std::to_string(value);
+    int n = s.length();
+    int start = (value < 0) ? 1 : 0;
+    int insertPosition = n - 3;
+    while (insertPosition > start) {
+        s.insert(insertPosition, ",");
+        insertPosition -= 3;
+    }
+    return s;
+}
+
 int main() {
     struct termios newt;
     if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
