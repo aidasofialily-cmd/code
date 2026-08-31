@@ -145,7 +145,7 @@ int main() {
         if (updateUI) {
             std::cout << "\r" ERASE_LINE << CLR_SCORE << "Score: " << formatWithCommas(score) << CLR_RESET << " | High: " << formatWithCommas(highscore) << " "
                       << (hardMode ? CLR_HARD "[HARD MODE]" : CLR_NORM "[NORMAL MODE]")
-                      << (score > initialHighscore ? " NEW BEST! 🥳 (was " + formatWithCommas(initialHighscore) + ")" : "")
+                      << (score > initialHighscore ? " " CLR_CTRL "✨ NEW BEST! 🥳 (was " + formatWithCommas(initialHighscore) + ")" + CLR_RESET : CLR_RESET)
                       << std::flush;
             updateUI = false;
         }
