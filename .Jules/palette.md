@@ -33,3 +33,7 @@
 ## 2024-04-24 - Avoiding Trailing Artifacts in CLI Applications
 **Learning:** When dynamically updating terminal lines using carriage return (`\r`), relying on hardcoded padding spaces to overwrite old text is brittle and leads to trailing text artifacts when new lines are shorter than previous ones.
 **Action:** Always use the ANSI escape sequence `\033[K` (Erase in Line) immediately after the carriage return (`\r`) to cleanly clear the line before writing new content, rather than manually managing padding spaces.
+
+## 2024-05-22 - Explicit Empty States in CLI
+**Learning:** When implementing UX in CLI applications, provide explicit, encouraging empty states for data or achievements rather than hiding the UI element when empty. This clarifies system state and improves user onboarding.
+**Action:** Added an explicit empty state for the personal best highscore display, providing a clear call-to-action when there is no record yet.
